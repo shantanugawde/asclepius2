@@ -1,0 +1,14 @@
+<html>
+  <head>
+    {% if title %}
+    <title>{{ title }} - Asclepius</title>
+    {% else %}
+    <title>Asclepius</title>
+    {% endif %}
+  </head>
+  <body>
+    <div>Insert Text here</div>
+    <hr>
+    {% block content %}{% endblock %}
+  </body>
+</html>

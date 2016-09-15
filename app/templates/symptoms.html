@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+	<form action="" method="post" name="symptoms">
+		{{ form.hidden_tag() }}
+		<table>
+			<tr><td><b>Symptoms</b></td></tr>
+			{% for symptom in form.symptoms_list %}
+				<tr>
+					<td>{{ symptom }}{{ symptom.label }}</td>
+				</tr>
+			{% endfor %}
+			<tr><td><input type="submit" value="Diagnose"></td></tr>
+		</table>
+	</form>
+{% endblock %}

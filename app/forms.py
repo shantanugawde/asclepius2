@@ -17,4 +17,7 @@ class MultiCheckboxField(SelectMultipleField):
     option_widget = widgets.CheckboxInput()
 
 class SymptomsForm(Form):
-	symptoms_list = MultiCheckboxField('Label')
+	symptoms_list = MultiCheckboxField('Symptoms')
+	
+class ConditionsForm(Form):
+	conditions_list = MultiCheckboxField('Conditions')

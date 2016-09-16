@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+	<form action="" method="post" name="conditions">
+		{{ form.hidden_tag() }}
+		<table>
+			<tr><td><b>Conditions</b></td></tr>
+			{% for condition in form.conditions_list %}
+				<tr>
+					<td>{{ condition }}{{ condition.label }}</td>
+					<td>{{ probability_mapping[condition.data] }}<b> Probability</b></td>
+				</tr>
+			{% endfor %}
+			<tr><td><input type="submit" value="Diagnose"></td></tr>
+		</table>
+	</form>
+{% endblock %}

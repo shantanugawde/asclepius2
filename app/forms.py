@@ -1,7 +1,7 @@
 from flask_wtf import Form
 from wtforms import StringField, BooleanField, TextAreaField
-from wtforms.fields import SelectMultipleField, HiddenField
-from wtforms.validators import DataRequired, Length
+from wtforms.fields import SelectMultipleField, HiddenField, PasswordField, IntegerField, SelectField, SubmitField
+from wtforms.validators import DataRequired, Length, Email, InputRequired, EqualTo
 from wtforms import widgets
 
 
@@ -29,3 +29,19 @@ class ConditionsForm(Form):
 class SearchPhrasesForm(Form):
     phrasebox = StringField('phrasebox')
     phrases = HiddenField('phrases')
+
+
+class RegistrationForm(Form):
+    name = StringField('name', validators=[InputRequired()])
+    email = StringField('email', validators=[Email(), InputRequired()])
+    password = PasswordField('New Password', [InputRequired(), EqualTo('confirm', message='Passwords must match')])
+    confirm = PasswordField('Repeat Password')
+    age = IntegerField('age')
+    gender = SelectField('gender', choices=[('female', 'Female'), ('male', 'Male')])
+
+
+class LoginForm(Form):
+    email = StringField('Email', validators=[Email(), InputRequired(), Length(1, 64)])
+    password = PasswordField('Password', validators=[InputRequired()])
+    remember_me = BooleanField('Keep me logged in')
+    submit = SubmitField('Log In')

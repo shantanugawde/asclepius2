@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+	<form action="" method="post" name="registration">
+		{{ form.hidden_tag() }}
+		<table>
+			<tr><td><b>Registration</b></td></tr>
+			<tr><td>Name</td><td>{{ form.name }}</td></tr>
+			<tr><td>Email</td><td>{{ form.email }}</td></tr>
+			<tr><td>Password</td><td>{{ form.password }}</td></tr>
+			<tr><td>Confirm</td><td>{{ form.confirm }}</td></tr>
+			<tr><td>Age</td><td>{{ form.age }}</td></tr>
+			<tr><td>Gender</td><td>{{ form.gender }}</td></tr>
+			<tr><td><input type="submit" value="Register"></td></tr>
+		</table>
+	</form>
+{% endblock %}

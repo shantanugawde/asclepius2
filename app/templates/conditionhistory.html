@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+    <table>
+        <tr><td><b>Conditions</b></td></tr>
+        {% for condition in conditions %}
+            <tr>
+                <td>{{ condition.name }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

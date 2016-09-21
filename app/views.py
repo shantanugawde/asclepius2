@@ -67,11 +67,17 @@ def conditions(phrase):
     for x in possible_conditions.conditions[:MAX_CONDITIONS]:
         cond = Condition(id=x['id'], name=x['name'])
         if len(Condition.query.filter_by(id=cond.id).all()) == 0:
-            for y in selected_symptoms:
-                symp = Symptom.query.filter_by(id=y).first()
-                cond.add_symptom(symp)
             db.session.add(cond)
         g.user.add_condition(cond)
+
+    db.session.commit()
+
+    for x in possible_conditions.conditions[:MAX_CONDITIONS]:
+        cond = Condition.query.filter_by(id=x['id']).first()
+        for y in selected_symptoms:
+            symp = Symptom.query.filter_by(id=y).first()
+            if symp is not None:
+                cond.add_symptom(symp)
 
     db.session.commit()
 

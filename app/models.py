@@ -8,8 +8,8 @@ conditionhistory = db.Table('conditionhistory',
                             )
 
 globalhistory = db.Table('globalhistory',
-                         db.Column('condition_id', db.Integer, db.ForeignKey('conditions.id')),
-                         db.Column('symptom_id', db.Integer, db.ForeignKey('symptoms.id'))
+                         db.Column('condition_id', db.String, db.ForeignKey('conditions.id')),
+                         db.Column('symptom_id', db.String, db.ForeignKey('symptoms.id'))
                          )
 
 class User(UserMixin, db.Model):

@@ -4,7 +4,7 @@
         <tr><td><b>Conditions</b></td></tr>
         {% for condition in all_conditions %}
             <tr>
-                <td>{{ condition.name }}: {{ condition.get_symptoms() }}</td>
+                {% if condition.get_symptoms()|length > 0 %}<td>{{ condition.name }}: {{ condition.get_symptoms() }}</td>{% endif %}
             </tr>
         {% endfor %}
     </table>

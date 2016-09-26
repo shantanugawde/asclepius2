@@ -2,7 +2,7 @@ from app import app, db
 from flask import render_template, flash, redirect, url_for, request, g
 from flask_login import login_required, current_user, logout_user, login_user
 from config import api
-from .forms import SymptomsForm, ConditionsForm, SearchPhrasesForm, RegistrationForm, LoginForm
+from .forms import SymptomsForm, ConditionsForm, SearchPhrasesForm, RegistrationForm, LoginForm, SearchFamilyForm
 from .models import User, Condition, Symptom
 import infermedica_api
 
@@ -85,6 +85,27 @@ def conditions(phrase):
     form.conditions_list.choices = [(x['id'], x['name']) for x in possible_conditions.conditions[:MAX_CONDITIONS]]
 
     return render_template('conditions.html', title=title, form=form, probability_mapping=probability_mapping)
+
+
+@app.route('/family', methods=['GET', 'POST'])
+@login_required
+def family():
+    form = SearchFamilyForm()
+    if g.user.family_id != 0:
+        allmembers = User.query.filter_by(family_id=0).all()
+    else:
+        allmembers = User.query.all()
+    form.members.choices = [(x.id, x.name) for x in allmembers if x.id != g.user.id]
+    my_family = User.query.filter_by(family_id=g.user.family_id).all()
+    form.my_members.choices = [(x.id, x.name) for x in my_family if x.id != 0]
+    if form.validate_on_submit:
+        selected_member = User.query.filter_by(id=form.members.data).first()
+        if selected_member is not None:
+            g.user.add_member(selected_member)
+            db.session.commit()
+        flash(form.members.data)
+
+    return render_template('family.html', title='family', form=form)
 
 
 @app.route('/conditionhistory')

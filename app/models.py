@@ -27,6 +27,26 @@ class User(UserMixin, db.Model):
 
     password_hash = db.Column(db.String(128))
 
+    family_id = db.Column(db.Integer, default=0)
+
+    def add_member(self, member):
+        if not self.has_family():
+            if member.has_family():
+                self.family_id = member.family_id
+            else:
+                self.family_id = self.lastfamily + 1
+                member.family_id = self.family_id
+        else:
+            if not member.has_family():
+                member.family_id = self.family_id
+
+    def has_family(self):
+        return self.family_id != 0
+
+    @property
+    def lastfamily(self):
+        return User.query.order_by('id desc').first().id
+
     @property
     def password(self):
         raise AttributeError('password is not a readable attribute')

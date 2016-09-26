@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+	<form action="" method="post", name="family">
+		{{ form.hidden_tag() }}
+		<table>
+			
+			<tr><td>Users :</td><td>{{ form.members }}</td></tr>
+			<tr><td><input type="submit" value="Add"></td></tr>
+		</table>
+
+	</form>
+	<hr>
+		<p>Your Family</p>
+        {% for mem in form.my_members %}
+            {{ mem.label }}
+        {% endfor %}
+{% endblock %}

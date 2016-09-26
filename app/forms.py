@@ -45,3 +45,8 @@ class LoginForm(Form):
     password = PasswordField('Password', validators=[InputRequired()])
     remember_me = BooleanField('Keep me logged in')
     submit = SubmitField('Log In')
+
+
+class SearchFamilyForm(Form):
+    members = SelectField("members")
+    my_members = MultiCheckboxField('My Family')

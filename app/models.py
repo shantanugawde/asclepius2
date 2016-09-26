@@ -11,7 +11,10 @@ globalhistory = db.Table('globalhistory',
                          db.Column('condition_id', db.String, db.ForeignKey('conditions.id')),
                          db.Column('symptom_id', db.String, db.ForeignKey('symptoms.id'))
                          )
-
+riskuser = db.Table('riskuser',
+                            db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+                            db.Column('risk_id', db.String, db.ForeignKey('risks.id'))
+                            )
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
 
@@ -68,6 +71,16 @@ class User(UserMixin, db.Model):
     def get_conditions(self):
         return self.conditions.all()
 
+    def add_risk(self, risk):
+        if not self.has_risk(risk):
+            self.risks.append(risk)
+
+    def has_risk(self, risk):
+        return self.risks.filter(riskuser.c.risk_id == risk.id).count() > 0
+    
+    def get_risk(self):
+	    return self.risks.all()
+
     def __repr__(self):
         return '<User %r>' % (self.name)
 
@@ -105,7 +118,12 @@ class Condition(db.Model):
     def __repr__(self):
         return '<Condition %r>' % (self.name)
 
-
+class Risk(db.Model):
+    __tablename__ = 'risks'
+    id = db.Column(db.String(30), primary_key=True)
+    name = db.Column(db.String(360), unique=True)
+    def __repr__(self):
+        return '<Risk %r>' % (self.name)
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))

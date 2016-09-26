@@ -2,9 +2,13 @@ from app import app, db
 from flask import render_template, flash, redirect, url_for, request, g
 from flask_login import login_required, current_user, logout_user, login_user
 from config import api
-from .forms import SymptomsForm, ConditionsForm, SearchPhrasesForm, RegistrationForm, LoginForm, SearchFamilyForm
-from .models import User, Condition, Symptom
+from .forms import SymptomsForm, ConditionsForm, SearchPhrasesForm, RegistrationForm, LoginForm, SearchFamilyForm, RisksForm
+from .models import User, Condition, Symptom, Risk
 import infermedica_api
+from config import gmaps
+from urllib.request import urlopen
+import json
+import sys
 
 selected_symptoms = list()
 
@@ -55,6 +59,9 @@ def conditions(phrase):
     for symp in selected_symptoms:
         possible_conditions.add_symptom(symp, 'present')
 
+    return_risks = g.user.get_risk()
+    for r in return_risks:
+        possible_conditions.add_risk_factor(r.id, 'present')
     possible_conditions = api.diagnosis(possible_conditions)
 
     if len(possible_conditions.conditions) < 5:
@@ -107,7 +114,22 @@ def family():
 
     return render_template('family.html', title='family', form=form)
 
-
+@app.route('/risk/<email>',methods=['GET','POST'])
+def risk(email):
+    form = RisksForm()
+    selected_risks = Risk.query.all()
+    form.risks_list.choices = [(x.id,x.name) for x in selected_risks]
+    user1 = User.query.filter_by(email = email).first()
+    #flash(user1)
+    if form.validate_on_submit():
+        selected_risks.clear()
+        for r in form.risks_list:
+            if r.checked:
+                user1.add_risk(Risk.query.filter_by(id = r.data).first())
+                selected_risks.append(r.data)
+        db.session.commit()	
+        return redirect(url_for('login'))
+    return render_template('risks.html',email = email,form = form,i = 0)
 @app.route('/conditionhistory')
 @login_required
 def conditionhistory():
@@ -136,7 +158,7 @@ def registration():
         db.session.add(u)
         db.session.commit()
         flash('Registration Successful')
-        return redirect(url_for('login'))
+        return redirect(url_for('risk',email = form.email.data))
     return render_template('registration.html', title=title, form=form)
 
 
@@ -153,6 +175,15 @@ def login():
         flash('Invalid username or password.')
     return render_template('login.html', form=form)
 
+@app.route('/doctor/<typed>',methods=['GET'])
+@login_required
+def doctor(typed):
+    geocode_result = gmaps.geocode('four bungalows,andheri')
+    lat = geocode_result[0][u'geometry'][u'location'][u'lat']
+    lng = geocode_result[0][u'geometry'][u'location'][u'lng']
+    url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+str(lat)+","+str(lng)+"&radius=500&type="+typed+"&key=AIzaSyDVK5ynnDSJZ0MWKRYtKZZKhxTMqTg1rl0"
+    response_body = urlopen(url).read().decode()
+    return render_template('markers.html',typed=typed,obj=json.loads(response_body))
 
 @app.route('/logout')
 @login_required

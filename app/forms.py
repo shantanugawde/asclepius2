@@ -25,6 +25,8 @@ class SymptomsForm(Form):
 class ConditionsForm(Form):
     conditions_list = MultiCheckboxField('Conditions')
 
+class RisksForm(Form):
+    risks_list = MultiCheckboxField('Risks')
 
 class SearchPhrasesForm(Form):
     phrasebox = StringField('phrasebox')

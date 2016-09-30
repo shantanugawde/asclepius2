@@ -1,4 +1,4 @@
-from app import app, db
+from app import app, db, mail
 from flask import render_template, flash, redirect, url_for, request, g
 from flask_login import login_required, current_user, logout_user, login_user
 from config import api
@@ -9,6 +9,7 @@ from config import gmaps
 from urllib.request import urlopen
 import json
 import sys
+from flask_mail import Message
 
 selected_symptoms = list()
 
@@ -78,16 +79,32 @@ def conditions(phrase):
         g.user.add_condition(cond)
 
     db.session.commit()
-
+    for_mail = ""
+    i=1
     for x in possible_conditions.conditions[:MAX_CONDITIONS]:
         cond = Condition.query.filter_by(id=x['id']).first()
+        for_mail = for_mail + str(i) + "." + x['name'] + "\n"
+        i = i + 1
         for y in selected_symptoms:
             symp = Symptom.query.filter_by(id=y).first()
             if symp is not None:
                 cond.add_symptom(symp)
 
     db.session.commit()
-
+    if g.user.age < 18:
+        if g.user.has_family: 
+            family_list = g.user.get_family()
+            for fam in family_list:
+                
+                body = """
+                       Dear %(f_name)s, your family member, %(name)s, has been diagnosed with the following conditions in descending order of
+					   probability by Asclipius.
+					   %(conditions_string)s
+			           """%{"f_name":fam.name, "name":g.user.name, "conditions_string":for_mail}
+                subject='Family Diagnosis'
+                sender = 'Asclepius'
+                recipients = [fam.email]
+                send_email(subject,sender,recipients,body)
     form = ConditionsForm()
     form.conditions_list.choices = [(x['id'], x['name']) for x in possible_conditions.conditions[:MAX_CONDITIONS]]
 
@@ -158,6 +175,11 @@ def registration():
         db.session.add(u)
         db.session.commit()
         flash('Registration Successful')
+        body = "Welcome to Asclepius!"
+        subject="Welcome!"
+        sender = 'Asclepius'
+        recipients = [form.email.data]
+        send_email(subject,sender,recipients,body)
         return redirect(url_for('risk',email = form.email.data))
     return render_template('registration.html', title=title, form=form)
 
@@ -176,7 +198,6 @@ def login():
     return render_template('login.html', form=form)
 
 @app.route('/doctor/<typed>',methods=['GET'])
-@login_required
 def doctor(typed):
     geocode_result = gmaps.geocode('four bungalows,andheri')
     lat = geocode_result[0][u'geometry'][u'location'][u'lat']
@@ -196,3 +217,9 @@ def logout():
 @app.before_request
 def before_request():
     g.user = current_user
+
+
+def send_email(subject,sender,recipients,body):
+    msg = Message(subject, sender = sender, recipients = recipients)
+    msg.body = body
+    mail.send(msg)

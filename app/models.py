@@ -27,7 +27,10 @@ class User(UserMixin, db.Model):
                                 secondary=conditionhistory,
                                 backref=db.backref('users', lazy='dynamic'),
                                 lazy='dynamic')
-
+    risks = db.relationship('Risk',
+                                secondary=riskuser,
+                                backref=db.backref('users', lazy='dynamic'),
+                                lazy='dynamic')
     password_hash = db.Column(db.String(128))
 
     family_id = db.Column(db.Integer, default=0)
@@ -45,7 +48,10 @@ class User(UserMixin, db.Model):
 
     def has_family(self):
         return self.family_id != 0
-
+    
+    def get_family(self):
+	    if self.has_family():
+		    return User.query.filter(self.family_id == User.family_id).all()
     @property
     def lastfamily(self):
         return User.query.order_by('id desc').first().id

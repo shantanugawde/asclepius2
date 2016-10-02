@@ -1,0 +1,8 @@
+Dear {{ parent }},
+Your family member, {{ minor }}, has been diagnosed with the following conditions in descending order of probability by Asclepius.
+    {% for x in conditions%}
+        {{ x['name'] }}
+    {% endfor %}
+
+Regards,
+Asclepius

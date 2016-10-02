@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block mystyle %}
+.chip {
+display: inline-block;
+padding: 0 20px;
+height: 50px;
+font-size: 16px;
+line-height: 50px;
+border-radius: 25px;
+background-color: #1C2331;
+color: #ffffff;
+}
+
+.closebtn {
+padding-left: 10px;
+color: #ffffff;
+float: right;
+font-size: 20px;
+cursor: pointer;
+}
+
+.closebtn:hover {
+color: #f0f0f0;
+
+}
+{% endblock %}
+{% block content %}
+
+<div class="container" style="padding-top: 3%; display: none">
+    <div class="col-md-8 col-md-offset-2" style="color: black">
+        <div class="page-header">
+            <h1 style="text-align: center">Search Doctor</h1>
+        </div>
+        <p class="lead" style="margin-top: 20px">Enter the type of doctor you wish to search for in your locality</p>
+    </div>
+
+    <form action="" method="post" name="searchdoctor">
+        {{ form.hidden_tag() }}
+        <div class="row" style="padding-top: 20px; font-family: 'Josefin Sans', sans-serif; font-size: 16px;">
+
+        </div>
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <!--<div class="input-group input-group-lg" style="margin-top: 40px">-->
+                    {{ form.doctortype( class='form-control', placeholder='Enter doctor type...', style='font-size: 16px') }}
+                <!--</div>&lt;!&ndash; /input-group &ndash;&gt;-->
+            </div><!-- /.col-lg-6 -->
+        </div><!-- /.row -->
+
+        <div class="row" style="padding-top: 20px; font-family: 'Josefin Sans', sans-serif; font-size: 16px;">
+
+        </div>
+        <div class="row" style="padding-top: 20px; font-family: 'Josefin Sans', sans-serif; font-size: 16px;">
+
+        </div>
+        <div class="row" style="padding-top: 20px; font-family: 'Josefin Sans', sans-serif; font-size: 16px;">
+            <div align="center">
+
+                <input type="submit" class="btn btn-success btn-lg" value="Search">
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block myscript %}
+<script>
+        $(function() {
+            $(".container").fadeIn("slow");
+  	    });
+</script>
+{% endblock %}

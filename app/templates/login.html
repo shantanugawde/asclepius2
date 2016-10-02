@@ -1,12 +1,62 @@
-{% extends "base.html" %}
-{% block content %}
-	<form action="" method="post" name="registration">
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Asclepius - Login</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+
+    <!-- Custom styles for this template -->
+    <link href="{{ url_for('static', filename='css/signin.css') }}" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Cinzel|Josefin+Sans" rel="stylesheet">
+	<script src="{{ url_for('static', filename='jquery-3.1.0.min.js') }}"></script>
+		<script>
+			$(function(){
+				$(".container").fadeIn("slow");
+			});
+		</script>
+   	<link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
+	  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  </head>
+
+  <body>
+    <div class="container" style="vertical-align: center; display: none;">
+	
+		<div class="row" style="margin-top: 10vh;">
+			<div class="col-md-offset-4 col-md-4" style="background-color: #eee; box-shadow: 0px 0px 3px 2px rgba(240,240,240,1);">
+		  <form class="form-signin" action="" method="post" name="login">
 		{{ form.hidden_tag() }}
-		<table>
-			<tr><td><b>Login</b></td></tr>
-			<tr><td>Email</td><td>{{ form.email }}</td></tr>
-			<tr><td>Password</td><td>{{ form.password }}</td></tr>
-			<tr><td><input type="submit" value="Login"></td></tr>
-		</table>
-	</form>
-{% endblock %}
+			<h2 class="form-signin-heading" style="font-family: 'Cinzel', serif; border-bottom: 1px solid black; padding-bottom: 5px">Asclepius</h2>
+			<h2 class="form-signin-heading" >Login</h2>
+			
+			<div class="input-group">
+			  <span class="input-group-addon" id="basic-addon2"><i class="fa fa-at fa-lg fa-2x"></i></span>
+				{{ form.email(class="form-control", placeholder="Email") }}
+			</div>
+
+
+			<div class="input-group">
+			  <span class="input-group-addon" id="basic-addon2" ><i class="material-icons">fingerprint</i></span>
+				{{ form.password(class="form-control", placeholder="Password") }}
+			</div>
+			
+			<div style="text-align: center; font-size:16px; padding: 5px 0px 10px 0px">
+			  <a href="{{ url_for('registration')}}">Click here to register</a>
+			</div>
+			
+				<button class="btn btn-lg btn-primary btn-block" style="margin: 10px 0px 10px 0px;" type="submit">Sign In</button>
+
+			  </form>
+			  </div>
+			</div>
+		</div> <!-- /container -->
+  </body>
+</html>

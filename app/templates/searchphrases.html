@@ -1,30 +1,113 @@
 {% extends "base.html" %}
+{% block mystyle %}
+.chip {
+display: inline-block;
+padding: 0 20px;
+height: 50px;
+font-size: 16px;
+line-height: 50px;
+border-radius: 25px;
+background-color: #1C2331;
+color: #ffffff;
+}
+
+.closebtn {
+padding-left: 10px;
+color: #ffffff;
+float: right;
+font-size: 20px;
+cursor: pointer;
+}
+
+.closebtn:hover {
+color: #f0f0f0;
+
+}
+{% endblock %}
 {% block content %}
-<script type="text/javascript">
-	$(function() {
-	    $('#addphrase').click(function() {
-			if($('#phrases').val()!=''){
-				$('#phrases').val($('#phrases').val() + '%20' + $('#phrasebox').val());
-			}
-			else{
-				$('#phrases').val($('#phrasebox').val());
-			}
-			$('#phrasebox').val('');
-			alert($('#phrases').val());
-		});
-	});
+
+<div class="container" style="padding-top: 3%; display: none">
+    <div class="col-md-8 col-md-offset-2" style="color: black">
+        <div class="page-header">
+            <h1 style="text-align: center">Diagnose</h1>
+        </div>
+        <p class="lead" style="margin-top: 20px">Add phrases to get symptoms and diagnose</p>
+    </div>
+
+    <form action="" method="post" name="searchphrases" id="searchphrases">
+        {{ form.hidden_tag() }}
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <div class="input-group input-group-lg" style="margin-top: 40px">
+                    {{ form.phrasebox( class='form-control', placeholder='Enter symptom phrase...') }}
+                    <span class="input-group-btn">
+					<button id="addbtn" class="btn btn-default" type="button">Add</button>
+                </span>
+                </div><!-- /input-group -->
+            </div><!-- /.col-lg-6 -->
+        </div><!-- /.row -->
+        <div class="row" style="margin-top: 40px">
+            <div class="col-md-8 col-md-offset-2" id="phraseholder" style="min-height: 55px">
+
+            </div><!-- /.col-lg-6 -->
+        </div><!-- /.row -->
+        <div class="row" style="padding-top: 20px; font-family: 'Josefin Sans', sans-serif; font-size: 16px;">
+            <div align="center">
+
+
+            </div>
+        </div>
+        <div class="row" style="padding-top: 20px; font-family: 'Josefin Sans', sans-serif; font-size: 16px;">
+            <div align="center">
+
+                <input type="submit" class="btn btn-success btn-lg" value="Begin Diagnosis">
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+
+{% block myscript %}
+<script>
+		var num=0;
+
+        $(function() {
+            $(".container").fadeIn("slow");
+            $('#addbtn').click(function() {
+                $("#phraseholder").append("<div class=\"chip\" id=\'c_"+num+"\'>"+$("#phrasebox").val()+"<span class=\"closebtn\">&times;</span></div>");
+                $("#c_"+num).hide().fadeIn("fast");
+                num++;
+
+
+
+                $('#phrasebox').val('');
+
+                $(".closebtn").click(function(){
+                    $(this).parent().fadeOut("fast",function(){$(this).remove();});
+                });
+
+            });
+
+            $( "#searchphrases" ).submit(function( event ) {
+                $("#phraseholder").children('div').each(function(){
+                    var mylen = $(this).text().length;
+                    var mystr = $(this).text().substr(0,mylen-1);
+                    if($('#phrases').val()!=''){
+                        $('#phrases').val($('#phrases').val() + '%20' + mystr);
+                    }
+                    else{
+                        $('#phrases').val(mystr);
+                    }
+                });
+                if($('#phrasebox').val()!=''){
+                        $('#phrases').val($('#phrases').val() + '%20' + $('#phrasebox').val());
+                }
+
+            });
+
+	    });
+
+
 </script>
-<form action="" method="post" name="searchphrases">
-	{{ form.hidden_tag() }}
-	<table>
-		<tr><td><b>Search</b></td></tr>
-        {{ form.phrases() }}
-		<tr><td>{{ form.phrasebox(size=40) }}</td></tr>
-		{% for error in form.errors.phrasebox %}
-		<br><span style="color: red;">[{{ error }}]</span>
-		{% endfor %}
-		<tr><td><input type="submit" value="Search"></td></tr>
-	</table>
-</form>
-<input id="addphrase" type="submit" value="Add">
 {% endblock %}

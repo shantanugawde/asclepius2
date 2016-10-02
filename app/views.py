@@ -2,14 +2,15 @@ from app import app, db, mail
 from flask import render_template, flash, redirect, url_for, request, g
 from flask_login import login_required, current_user, logout_user, login_user
 from config import api
-from .forms import SymptomsForm, ConditionsForm, SearchPhrasesForm, RegistrationForm, LoginForm, SearchFamilyForm, RisksForm
+from .forms import SymptomsForm, ConditionsForm, SearchPhrasesForm, RegistrationForm, LoginForm, SearchFamilyForm, \
+    RisksForm, SearchDoctorForm
 from .models import User, Condition, Symptom, Risk
 import infermedica_api
 from config import gmaps
 from urllib.request import urlopen
 import json
-import sys
 from flask_mail import Message
+import sys
 
 selected_symptoms = list()
 
@@ -28,7 +29,8 @@ def searchphrases():
 @app.route('/symptoms/<phrase>', methods=['GET', 'POST'])
 @login_required
 def symptoms(phrase):
-    title = phrase + " Symptoms"
+    mytitle = phrase.replace("%20", " ")
+    title = mytitle + " Symptoms"
     tmp_list = phrase.strip().split('%20')
     possible_symptoms = list()
     for p in tmp_list:
@@ -55,7 +57,8 @@ def symptoms(phrase):
 @app.route('/conditions/<phrase>', methods=['GET', 'POST'])
 @login_required
 def conditions(phrase):
-    title = phrase + " Conditions"
+    mytitle = phrase.replace("%20", " ")
+    title = mytitle + " Conditions"
     possible_conditions = infermedica_api.Diagnosis(sex=g.user.gender, age=g.user.age)
     for symp in selected_symptoms:
         possible_conditions.add_symptom(symp, 'present')
@@ -70,7 +73,7 @@ def conditions(phrase):
     else:
         MAX_CONDITIONS = 5
 
-    probability_mapping = {x['id']: x['probability'] for x in possible_conditions.conditions[:MAX_CONDITIONS]}
+    probability_mapping = {x['id']: x['probability'] * 100 for x in possible_conditions.conditions[:MAX_CONDITIONS]}
 
     for x in possible_conditions.conditions[:MAX_CONDITIONS]:
         cond = Condition(id=x['id'], name=x['name'])
@@ -79,12 +82,9 @@ def conditions(phrase):
         g.user.add_condition(cond)
 
     db.session.commit()
-    for_mail = ""
-    i=1
+
     for x in possible_conditions.conditions[:MAX_CONDITIONS]:
         cond = Condition.query.filter_by(id=x['id']).first()
-        for_mail = for_mail + str(i) + "." + x['name'] + "\n"
-        i = i + 1
         for y in selected_symptoms:
             symp = Symptom.query.filter_by(id=y).first()
             if symp is not None:
@@ -92,23 +92,27 @@ def conditions(phrase):
 
     db.session.commit()
     if g.user.age < 18:
-        if g.user.has_family: 
+        if g.user.has_family:
             family_list = g.user.get_family()
             for fam in family_list:
-                
-                body = """
-                       Dear %(f_name)s, your family member, %(name)s, has been diagnosed with the following conditions in descending order of
-					   probability by Asclipius.
-					   %(conditions_string)s
-			           """%{"f_name":fam.name, "name":g.user.name, "conditions_string":for_mail}
-                subject='Family Diagnosis'
+                text_body = render_template("diagnosis_mail.txt", parent=fam.name, minor=g.user.name,
+                                       conditions=possible_conditions.conditions[:MAX_CONDITIONS])
+                html_body = render_template("diagnosis_mail.html", parent=fam.name, minor=g.user.name,
+                                       conditions=possible_conditions.conditions[:MAX_CONDITIONS])
+                subject = 'Family Diagnosis'
                 sender = 'Asclepius'
                 recipients = [fam.email]
-                send_email(subject,sender,recipients,body)
+                send_email(subject, sender, recipients, text_body, html_body)
     form = ConditionsForm()
     form.conditions_list.choices = [(x['id'], x['name']) for x in possible_conditions.conditions[:MAX_CONDITIONS]]
 
     return render_template('conditions.html', title=title, form=form, probability_mapping=probability_mapping)
+
+
+@app.route('/_myfamily')
+def get_myfamlist():
+    my_family = User.query.filter_by(family_id=g.user.family_id).all()
+    return my_family
 
 
 @app.route('/family', methods=['GET', 'POST'])
@@ -120,33 +124,34 @@ def family():
     else:
         allmembers = User.query.all()
     form.members.choices = [(x.id, x.name) for x in allmembers if x.id != g.user.id]
-    my_family = User.query.filter_by(family_id=g.user.family_id).all()
-    form.my_members.choices = [(x.id, x.name) for x in my_family if x.id != 0]
+    form.my_members.choices = [(x.id, x.name) for x in get_myfamlist() if x.id != 0 and x.id != g.user.id]
     if form.validate_on_submit:
         selected_member = User.query.filter_by(id=form.members.data).first()
         if selected_member is not None:
             g.user.add_member(selected_member)
             db.session.commit()
-        flash(form.members.data)
 
-    return render_template('family.html', title='family', form=form)
+    return render_template('family.html', title='Family', form=form)
 
-@app.route('/risk/<email>',methods=['GET','POST'])
+
+@app.route('/risk/<email>', methods=['GET', 'POST'])
 def risk(email):
     form = RisksForm()
     selected_risks = Risk.query.all()
-    form.risks_list.choices = [(x.id,x.name) for x in selected_risks]
-    user1 = User.query.filter_by(email = email).first()
-    #flash(user1)
+    form.risks_list.choices = [(x.id, x.name) for x in selected_risks]
+    user1 = User.query.filter_by(email=email).first()
+    # flash(user1)
     if form.validate_on_submit():
         selected_risks.clear()
         for r in form.risks_list:
             if r.checked:
-                user1.add_risk(Risk.query.filter_by(id = r.data).first())
+                user1.add_risk(Risk.query.filter_by(id=r.data).first())
                 selected_risks.append(r.data)
-        db.session.commit()	
+        db.session.commit()
         return redirect(url_for('login'))
-    return render_template('risks.html',email = email,form = form,i = 0)
+    return render_template('risks.html', email=email, form=form, i=0)
+
+
 @app.route('/conditionhistory')
 @login_required
 def conditionhistory():
@@ -156,35 +161,35 @@ def conditionhistory():
 @app.route('/globalhistory')
 @login_required
 def globalhistory():
-    # condition_map = dict()
     all_conditions = Condition.query.all()
-    # for x in all_conditions:
-    #     condition_map[x.name] = x.get_symptoms()
-
     return render_template('globalhistory.html', all_conditions=all_conditions)
 
 
 @app.route('/registration', methods=['GET', 'POST'])
 def registration():
-    title = "Registration"
+    # title = "Registration"
     form = RegistrationForm()
 
     if form.validate_on_submit():
-        u = User(name=form.name.data, email=form.email.data, age=form.age.data, gender=form.gender.data)
+        u = User(name=form.name.data, email=form.email.data, age=form.age.data, gender=form.gender.data,
+                 locality=form.locality.data)
         u.password = form.password.data
         db.session.add(u)
         db.session.commit()
         flash('Registration Successful')
-        body = "Welcome to Asclepius!"
-        subject="Welcome!"
-        sender = 'Asclepius'
-        recipients = [form.email.data]
-        send_email(subject,sender,recipients,body)
-        return redirect(url_for('risk',email = form.email.data))
-    return render_template('registration.html', title=title, form=form)
+        return redirect(url_for('risk', email=form.email.data))
+    return render_template('registration.html', form=form)
 
 
-@app.route('/login', methods=['GET','POST'])
+@app.route('/')
+@app.route('/index')
+def index():
+    if g.user.is_authenticated:
+        return redirect(url_for('consult'))
+    return render_template('index.html')
+
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if g.user is not None and g.user.is_authenticated:
@@ -197,21 +202,39 @@ def login():
         flash('Invalid username or password.')
     return render_template('login.html', form=form)
 
-@app.route('/doctor/<typed>',methods=['GET'])
-def doctor(typed):
-    geocode_result = gmaps.geocode('four bungalows,andheri')
+
+@app.route('/searchdoctor', methods=['GET', 'POST'])
+def searchdoctor():
+    form = SearchDoctorForm()
+    if form.validate_on_submit():
+        return redirect(url_for('doctormap', typed=form.doctortype.data))
+    return render_template('searchdoctor.html', title='Search Doctor', form=form)
+
+
+@app.route('/map/<typed>', methods=['GET'])
+@login_required
+def doctormap(typed):
+    geocode_result = gmaps.geocode(g.user.locality)
     lat = geocode_result[0][u'geometry'][u'location'][u'lat']
     lng = geocode_result[0][u'geometry'][u'location'][u'lng']
-    url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+str(lat)+","+str(lng)+"&radius=500&type="+typed+"&key=AIzaSyDVK5ynnDSJZ0MWKRYtKZZKhxTMqTg1rl0"
+    url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + str(lat) + "," + str(
+        lng) + "&radius=500&type=" + typed + "&key=AIzaSyDVK5ynnDSJZ0MWKRYtKZZKhxTMqTg1rl0"
     response_body = urlopen(url).read().decode()
-    return render_template('markers.html',typed=typed,obj=json.loads(response_body))
+    return render_template('markers.html', typed=typed, obj=json.loads(response_body))
+
+
+@app.route('/consult')
+@login_required
+def consult():
+    return render_template('consult.html')
+
 
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     flash('You have been logged out')
-    return redirect(url_for('searchphrases'))
+    return redirect(url_for('index'))
 
 
 @app.before_request
@@ -219,7 +242,8 @@ def before_request():
     g.user = current_user
 
 
-def send_email(subject,sender,recipients,body):
-    msg = Message(subject, sender = sender, recipients = recipients)
-    msg.body = body
+def send_email(subject, sender, recipients, text_body, html_body):
+    msg = Message(subject, sender=sender, recipients=recipients)
+    msg.body = text_body
+    msg.html = html_body
     mail.send(msg)

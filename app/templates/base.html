@@ -1,31 +1,128 @@
-<html>
-  <head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     {% if title %}
-    <title>{{ title }} - Asclepius</title>
+    <title>Asclepius - {{ title }}</title>
     {% else %}
     <title>Asclepius</title>
     {% endif %}
-	
-	<script type="text/javascript" src="{{ url_for('static', filename='jquery-3.1.0.min.js') }}">
-	</script>
-  </head>
-  <body>
-	{% with messages = get_flashed_messages() %}
-		{% if messages %}
-			<ul>
-			{% for message in messages %}
-				<li>{{ message }}</li>
-			{% endfor %}
-			</ul>
-		{% endif %}
-	{% endwith %}
-    {% if g.user.is_authenticated %}
-        <a href="{{ url_for('searchphrases') }}">Diagnose by Phrase</a> |
-        <a href="{{ url_for('conditionhistory') }}">View Condition History</a> |
-        <a href="{{ url_for('globalhistory') }}">Global History</a> |
-        <a href="{{ url_for('logout') }}">Sign Out</a>
-    {% endif %}
-    <hr>
-    {% block content %}{% endblock %}
-  </body>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <link href="https://fonts.googleapis.com/css?family=Cinzel|Josefin+Sans" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+
+    <![endif]-->
+    <style>
+		div{
+			font-family: 'Josefin Sans', sans-serif;
+			font-size: 16px;
+			}
+		html {
+			  position: relative;
+			  min-height: 100%;
+			}
+			body {
+			  /* Margin bottom by footer height */
+			  margin-bottom: 60px;
+			}
+			.footer {
+			  position: absolute;
+			  bottom: 0;
+			  width: 100%;
+			  /* Set the fixed height of the footer here */
+			  height: 80px;
+			  background-color: #f5f5f5;
+		}	
+		
+		.container {
+		  width: auto;
+		  max-width: 80%;
+		  
+		  
+		}
+		.container .text-muted {
+		  margin: 20px 0;
+		}
+		
+		.footer {
+		  background-color: #1b1b1b;
+		  
+		  border-color: #252525;
+		  
+		}
+        {% block mystyle %}
+        {% endblock %}
+
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" style="font-family: 'Cinzel', serif; font-size: 32px;" href="{{ url_for('index') }}">Asclepius</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            {% if g.user.is_authenticated %}
+            <ul class="nav navbar-nav">
+
+                <li><a href="{{ url_for('searchdoctor') }}">Search Doctors</a></li>
+                <li><a href="{{ url_for('searchphrases') }}">Diagnose</a></li>
+                <li><a href="{{ url_for('conditionhistory') }}">Condition Log</a></li>
+                <li><a href="{{ url_for('globalhistory') }}">Global History</a></li>
+                <li><a href="{{ url_for('family') }}">My Family</a></li>
+            </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                <li><a style="padding-right:0px" disabled="disabled">{{ g.user.name }}</a></li>
+                <li><a style="padding-right:0px" disabled="disabled">|</a></li>
+                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+            </ul>
+            {% endif %}
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+
+</nav>
+
+
+{% block content %}{% endblock %}
+
+
+<footer class="footer">
+    <div class="container">
+        <p class="text-muted">About Us</p>
+    </div>
+</footer>
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="{{ url_for('static', filename='jquery-3.1.0.min.js') }}"></script>
+
+{% block myscript %}{% endblock %}
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
+</body>
 </html>

@@ -1,17 +1,58 @@
 {% extends "base.html" %}
 {% block content %}
-	<form action="" method="post", name="family">
-		{{ form.hidden_tag() }}
-		<table>
-			
-			<tr><td>Users :</td><td>{{ form.members }}</td></tr>
-			<tr><td><input type="submit" value="Add"></td></tr>
-		</table>
+<div class="container" style="padding-top: 3%; display: none">
+    <div class="col-md-8 col-md-offset-2" style="color: black">
+        <div class="page-header">
+            <h1 style="text-align: center">My Family</h1>
+        </div>
+        <p class="lead" style="margin-top: 20px; text-align:center">Add members to your family to get updates about
+            them</p>
+    </div>
+    <form action="" method="post" , name="family">
+        {{ form.hidden_tag() }}
+        <div class="row" style="padding-top: 20px; font-family: 'Josefin Sans', sans-serif; font-size: 16px;">
+            <div align="center">
+                <div class="col-md-8 col-md-offset-2">
+                    {% if form.members.choices|length > 0 %}
+                    {{ form.members }}
+                    <input type="submit" value="Add">
 
-	</form>
-	<hr>
-		<p>Your Family</p>
-        {% for mem in form.my_members %}
-            {{ mem.label }}
-        {% endfor %}
+                    {% else %}
+                    <h2>No users to add to your family</h2>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="row"
+         style="padding-top: 20px; padding-bottom: 20px; font-family: 'Josefin Sans', sans-serif; font-size: 16px; border-top: 1px">
+        <div align="center">
+            <div class="col-md-8 col-md-offset-2">
+                <div class="page-header">
+                    <h2>Family Members</h2>
+                </div>
+                {% if form.my_members.choices|length > 0 %}
+                <ul class="list-group">
+                    {% for mem in form.my_members %}
+                    <li class="list-group-item">{{ mem.label }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>No users added to your family yet</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block myscript %}
+<script>
+        $(function() {
+            $(".container").fadeIn("slow");
+  	    });
+
+
+
+
+</script>
 {% endblock %}

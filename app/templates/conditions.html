@@ -1,16 +1,58 @@
 {% extends "base.html" %}
 {% block content %}
-	<form action="" method="post" name="conditions">
-		{{ form.hidden_tag() }}
-		<table>
-			<tr><td><b>Conditions</b></td></tr>
-			{% for condition in form.conditions_list %}
-				<tr>
-					<td>{{ condition.label }}</td>
-					<td>{{ probability_mapping[condition.data] }}<b> Probability</b></td>
-				</tr>
-			{% endfor %}
-			<tr><td><input type="submit" value="Diagnose"></td></tr>
-		</table>
-	</form>
+<div class="container" style="padding-top: 3%">
+    <div class="col-md-8 col-md-offset-2" style="color: black">
+        <div class="page-header">
+            <h1 style="text-align: center">Diagnosed Conditions</h1>
+        </div>
+        <p class="lead" style="margin-top: 20px">Here is a list of possible conditions according to your selected
+            symptoms, profile and risks, sorted by decreasing order of probability</p>
+    </div>
+    <form action="" method="post" name="conditions">
+        {{ form.hidden_tag() }}
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2" style="padding-bottom:0px">
+                <ul class="list-group">
+
+                    {% for condition in form.conditions_list %}
+                    <li class="list-group-item">
+                        {{ condition.label }}
+                        <div class="progress" style="height: 20px">
+                            <div class="progress-bar" role="progressbar" aria-valuenow="probability_mapping[condition.data]" aria-valuemin="0"
+                                 aria-valuemax="100" style="width: {{ probability_mapping[condition.data]}}%; color: black; height: 20px;">{{ '%.2f' % probability_mapping[condition.data] }}% Probability</div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div><!-- /.col-lg-6 -->
+        </div><!-- /.row -->
+        <div class="row"
+             style="padding: 15px 0px 20px 0px; font-family: 'Josefin Sans', sans-serif; font-size: 16px; min-height: 60px; margin-bottom: 25px">
+
+        </div>
+    </form>
+</div>
+{% endblock %}
+{% block myscript %}
+<script>
+    $(function() {
+            $(".progress-bar").each(function(){
+                var progprec = parseFloat($(this).text().substr(0, 4));
+                var res = $(this).text().substr(0, 6);
+               if(progprec < 21){
+                    $(this).addClass("progress-bar-success");
+                    $(this).addClass("progress-bar-striped");
+
+                }
+                else if(progprec < 67){
+                    $(this).addClass("progress-bar-warning");
+                    $(this).addClass("progress-bar-striped");
+                }
+                else if(progprec <= 100){
+                    $(this).addClass("progress-bar-danger");
+                    $(this).addClass("progress-bar-striped");
+                }
+            });
+    });
+</script>
 {% endblock %}

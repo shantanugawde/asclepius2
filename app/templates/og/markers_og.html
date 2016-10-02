@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #map {
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script>
+    var map;
+    var doctors = [];
+    function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: {lat: 19.1237519, lng: 72.8339179},
+            zoom: 12,
+            mapTypeControl: false
+        });
+		//alert("{{typed}}");
+        var bounds = new google.maps.LatLngBounds();
+        var infoWindow = new google.maps.InfoWindow();
+		//var obj = ($('#obj').val());
+		console.log();
+		var response = {{obj|tojson|safe}};
+		console.log(response);
+		for (var r of response["results"]) {
+			doctors.push({
+				name: r.name,
+				position: {
+					lat: +r.geometry.location.lat,
+					lng: +r.geometry.location.lng
+				},
+				vicinity: r.vicinity
+			});
+		}
+		for (var i = 0; i < doctors.length; i++) {
+			var marker = new google.maps.Marker({
+				position: doctors[i].position,
+				map: map,
+				title: doctors[i].name,
+				animation: google.maps.Animation.DROP,
+				id: i
+			});
+			const res = doctors[i];
+			bounds.extend(marker.position);
+			marker.addListener('mouseover', function () {
+				addInfoWindow(this, infoWindow, res);
+			});
+			marker.addListener('mouseout', function () {
+				infoWindow.close();
+			});
+		}
+		map.fitBounds(bounds);
+        map.addListener('click', function () {
+            infoWindow.close();
+        });
+    }
+    var addInfoWindow = function (marker, infoWindow, doctor) {
+        infoWindow.marker = marker;
+        infoWindow.setContent(
+                '<div>' +
+                '<h2 style="position: relative; float: left; margin-left:8px">' + doctor.name + 
+                '<br><h4 style="position: relative; float: left; margin-left: 8px">' + doctor.vicinity + '' +
+                 +
+                '</div>'
+        );
+        infoWindow.open(map, marker);
+        infoWindow.addListener('closeclick', function () {
+            infoWindow.marker = null;
+        });
+    };
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC8g6dEvdguylYmEBQCFT3tuaqP5b4t-QU&callback=initMap"
+        async defer></script>
+</body>
+<input style="diplay:none;" id="obj" type="hidden" value="{{obj}}"></input>
+</html>

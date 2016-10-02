@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container" style="padding-top: 3%">
+    <div class="page-header" align="center">
+        <h1 style="font-family: 'Cinzel', serif; font-size: 40px">Asclepius</h1>
+    </div>
+    <p style="font-family: 'Josefin Sans', sans serif; font-size: 25px" align="center">How can Asclepius help you?</p>
+    <div class="container" align="center" style="margin-top:10%; display: none">
+        <div class="row">
+
+            <div class="col-sm-4">
+
+                <a href="{{ url_for('searchphrases') }}"><img
+                        src="{{ url_for('static', filename='img/icon/heart.svg') }}"></a>
+                <h3>Diagnose</h3>
+                <p>Learn about probable conditions from your specified symptoms</p>
+
+                <!-- <p><a class="btn btn-embossed btn-primary view" role="button">View Details</a></p> -->
+            </div><!-- /.col-lg-4 -->
+
+            <div class="col-sm-4">
+                <a href="#"><img src="{{ url_for('static', filename='img/icon/search.svg') }}"></a>
+                <h3>Doctor Search</h3>
+                <p>Find the nearest experts for your condition</p>
+                <!-- <p><a class="btn btn-embossed btn-primary view" role="button">View Details</a></p> -->
+            </div><!-- /.col-lg-4 -->
+
+
+            <div class="col-sm-4">
+                <a href="{{ url_for('conditionhistory') }}"><img src="{{ url_for('static', filename='img/icon/clipboard.svg') }}"></a>
+                <h3>Medical History</h3>
+                <p>View your personalised medical journal containing your diagnosis history</p>
+                <!-- <p><a class="btn btn-embossed btn-primary view" role="button">View Details</a></p> -->
+            </div><!-- /.col-lg-4 -->
+
+
+        </div><!-- /.row -->
+    </div>
+</div>
+
+{% endblock %}
+{% block myscript %}
+<script>
+    $(function(){
+    $(".container").fadeIn(1500);
+    });
+</script>
+{% endblock %}

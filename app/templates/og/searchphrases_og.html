@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<script type="text/javascript">
+	$(function() {
+	    $('#addphrase').click(function() {
+			if($('#phrases').val()!=''){
+				$('#phrases').val($('#phrases').val() + '%20' + $('#phrasebox').val());
+			}
+			else{
+				$('#phrases').val($('#phrasebox').val());
+			}
+			$('#phrasebox').val('');
+			alert($('#phrases').val());
+		});
+	});
+</script>
+<form action="" method="post" name="searchphrases">
+	{{ form.hidden_tag() }}
+	<table>
+		<tr><td><b>Search</b></td></tr>
+        {{ form.phrases() }}
+		<tr><td>{{ form.phrasebox(size=40) }}</td></tr>
+		{% for error in form.errors.phrasebox %}
+		<br><span style="color: red;">[{{ error }}]</span>
+		{% endfor %}
+		<tr><td><input type="submit" value="Search"></td></tr>
+	</table>
+</form>
+<input id="addphrase" type="submit" value="Add">
+{% endblock %}

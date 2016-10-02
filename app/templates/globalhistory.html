@@ -1,11 +1,63 @@
 {% extends "base.html" %}
 {% block content %}
-    <table>
-        <tr><td><b>Conditions</b></td></tr>
-        {% for condition in all_conditions %}
-            <tr>
-                {% if condition.get_symptoms()|length > 0 %}<td>{{ condition.name }}: {{ condition.get_symptoms() }}</td>{% endif %}
-            </tr>
-        {% endfor %}
-    </table>
+<div class="container" style="padding-top: 3%; display: none">
+    <div class="col-md-8 col-md-offset-2" style="color: black">
+        <div class="page-header">
+            <h1 style="text-align: center">Global Medical History</h1>
+        </div>
+        <p class="lead" style="margin-top: 20px">Cumulative list of symptoms that users selected for the
+            diagnosis of their condition</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2" style="padding-bottom:20px">
+            <div class=panel-group role=tablist id="accordion">
+                {% set count=0 %}
+                {% for condition in all_conditions %}
+                {% if condition.get_symptoms()|length > 0 %}
+                {% set count = count + 1 %}
+                <div class="panel panel-default">
+                    <div class=panel-heading role=tab id=collapseListGroupHeading{{count}}>
+                        <h4 class=panel-title><a href=#collapseListGroup{{count}} class=collapsed role=button
+                                                 data-toggle=collapse data-parent="#accordion" aria-expanded=false
+                                                 aria-controls=collapseListGroup{{count}}> {{ condition.name }} </a></h4>
+                    </div>
+                    <div class="collapse panel-collapse" role=tabpanel id=collapseListGroup{{count}}
+                         aria-labelledby=collapseListGroupHeading{{count}}>
+                        <ul class=list-group>
+                            {% for symp in condition.get_symptoms() %}
+                            <li class=list-group-item>{{ symp['label'] }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div><!-- /.col-lg-6 -->
+    </div><!-- /.row -->
+</div>
+{% endblock %}
+{% block myscript %}
+<script>
+    $(function(){
+        $(".container").fadeIn("slow");
+        $(".collapse").on('shown.bs.collapse', function(){
+            $(this).prev().css('color','#f5f5f5');
+            $(this).prev().css('background-color','#333');
+        });
+        $(".collapse").on('show.bs.collapse', function(){
+            $(this).prev().css('color','#f5f5f5');
+            $(this).prev().css('background-color','#333');
+        });
+        $(".collapse").on('hide.bs.collapse', function(){
+            $(this).prev().css('color','#333');
+            $(this).prev().css('background-color','#f5f5f5');
+        });
+        $(".collapse").on('hidden.bs.collapse', function(){
+            $(this).prev().css('color','#333');
+            $(this).prev().css('background-color','#f5f5f5');
+        });
+    });
+</script>
 {% endblock %}

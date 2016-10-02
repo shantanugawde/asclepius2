@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+<input type="checkbox" checked data-toggle="toggle" data-onstyle="danger">
+{% block content %}
+<div class="container">
+	<div class="col-md-6 col-md-offset-3" style="color: black">
+      <div class="page-header">
+        <h1 style="text-align: center">Risk Factors</h1>
+      </div>
+      <p class="lead" style="margin-top: 20px">Add relevant risk factors that are present</p>
+	  </div>
+	<form action="" method="post" name="risks">
+		{{ form.hidden_tag() }}
+		<table class="table table-bordered">
+			<tr><th><b>Risk Factors</b></th><th><b></b></th></tr>
+			{% for risk in form.risks_list %}
+				<tr>
+					<td>{{ risk.label }}</td><td>{{ risk }}</td>
+				</tr>
+			{% endfor %}
+			<tr></tr>
+		</table>
+		<center>
+		<button class="btn btn-lg btn-success" style="margin: 10px 0px 10px 0px; width:275px" type="submit">Add Risk Factors</button>
+		</center>
+	</form>
+</div>
+{% endblock %}

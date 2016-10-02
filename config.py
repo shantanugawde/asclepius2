@@ -11,5 +11,12 @@ infermedica_api.configure(app_id='e0e1634e', app_key='3def7d8607bd91e6e52ebc1f9a
 api = infermedica_api.get_api()
 gmaps = googlemaps.Client(key='AIzaSyDVK5ynnDSJZ0MWKRYtKZZKhxTMqTg1rl0')
 
+MAIL_SERVER = 'smtp.gmail.com'
+MAIL_PORT = 465
+MAIL_USERNAME = 'asclepius.diagnosis@gmail.com'
+MAIL_PASSWORD = 'akkdu123'
+MAIL_USE_TLS = False
+MAIL_USE_SSL = True
+
 WT_CSRF_ENABLED = True
 SECRET_KEY = 'development'

@@ -1,0 +1,5 @@
+Dear {{ sendername }},
+
+Your family member, {{ minor }}, has been diagnosed with the following conditions in descending order of
+    					   probability by Asclipius.
+    					   %(conditions_string)s

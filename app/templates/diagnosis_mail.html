@@ -1,0 +1,10 @@
+<p>Dear {{ parent }},</p>
+<p>Your family member, {{ minor }}, has been diagnosed with the following conditions in descending order of probability by <b>Asclepius.</b></p>
+<ol>
+    {% for x in conditions%}
+        <li>{{ x['name'] }}</li>
+    {% endfor %}
+</ol>
+
+<p>Regards,</p>
+<p>Asclepius</p>

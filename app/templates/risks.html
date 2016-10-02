@@ -1,101 +1,154 @@
-<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Asclepius - Risk Factors</title>
 
-<!-- Optional theme -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
-<!-- Latest compiled and minified JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-	<style>
-		div{
-			font-family: 'Work Sans', sans-serif;
-			font-size: 20px;
-			}
-		html {
-			  position: relative;
-			  min-height: 100%;
-			}
-			body {
-			  /* Margin bottom by footer height */
-			  margin-bottom: 60px;
-			}
-			.footer {
-			  position: absolute;
-			  bottom: 0;
-			  width: 100%;
-			  /* Set the fixed height of the footer here */
-			  height: 80px;
-			  background-color: #f5f5f5;
-		}	
-		
-		.container {
-		  width: auto;
-		  max-width: 80%;
-		  
-		  
-		}
-		.container .text-muted {
-		  margin: 20px 0;
-		}
-		
-		.footer {
-		  background-color: #1b1b1b;
-		  
-		  border-color: #252525;
-		}
-		
-		body {
-			background-image: url("intro4.jpg");
-			background-size: 100%;
-			height: 100%;
-		}
-		.chip {
-			display: inline-block;
-			padding: 0 20px;
-			height: 50px;
-			font-size: 16px;
-			line-height: 50px;
-			border-radius: 25px;
-			background-color: #f1f1f1;
-		}
-		
-		.closebtn {
-			padding-left: 10px;
-			color: #888;
-			font-weight: bold;
-			float: right;
-			font-size: 20px;
-			cursor: pointer;
-		}
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
 
-		.closebtn:hover {
-			color: #000;
-		}
-	</style>
-{% extends "base.html" %}
-{% block content %}
-<div class="container">
-	<div class="col-md-6 col-md-offset-3" style="color: black">
-      <div class="page-header">
-        <h1 style="text-align: center">Risk Factors</h1>
-      </div>
-      <p class="lead" style="margin-top: 20px">Add relevant risk factors that are present</p>
-	  </div>
-	<form action="" method="post" name="risks">
-		{{ form.hidden_tag() }}
-		<table class="table table-bordered">
-			<tr><th><b>Risk Factors</b></th><th><b></b></th></tr>
-			{% for risk in form.risks_list %}
-				<tr>
-					<td>{{ risk.label }}</td><td>{{ risk }}</td>
-				</tr>
-			{% endfor %}
-			<tr></tr>
-		</table>
-		<center>
-		<button class="btn btn-lg btn-success" style="margin: 10px 0px 10px 0px; width:275px" type="submit">Add Risk Factors</button>
-		</center>
-	</form>
-</div>
-{% endblock %}
+    <!-- Custom styles for this template -->
+    <link href="{{ url_for('static', filename='css/signin.css') }}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Cinzel|Josefin+Sans" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script>
+			$(function(){
+				$(".container").fadeIn("slow");
+			});
+
+
+    </script>
+    <style>
+        [type="checkbox"]:not(:checked),
+[type="checkbox"]:checked {
+  position: absolute;
+  left: -9999px;
+}
+[type="checkbox"]:not(:checked) + label,
+[type="checkbox"]:checked + label {
+  position: relative;
+  padding-left: 25px;
+  cursor: pointer;
+}
+
+/* checkbox aspect */
+[type="checkbox"]:not(:checked) + label:before,
+[type="checkbox"]:checked + label:before {
+  content: '';
+  position: absolute;
+  left:0; top: 2px;
+  width: 17px; height: 17px;
+  border: 1px solid #aaa;
+  background: #f8f8f8;
+  border-radius: 3px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.3)
+}
+/* checked mark aspect */
+[type="checkbox"]:not(:checked) + label:after,
+[type="checkbox"]:checked + label:after {
+  content: '✔';
+  position: absolute;
+  top: 3px; left: 4px;
+  font-size: 18px;
+  line-height: 0.8;
+  color: #990000;
+  transition: all .2s;
+}
+/* checked mark aspect changes */
+[type="checkbox"]:not(:checked) + label:after {
+  opacity: 0;
+  transform: scale(0);
+}
+[type="checkbox"]:checked + label:after {
+  opacity: 1;
+  transform: scale(1);
+}
+/* disabled checkbox */
+[type="checkbox"]:disabled:not(:checked) + label:before,
+[type="checkbox"]:disabled:checked + label:before {
+  box-shadow: none;
+  border-color: #bbb;
+  background-color: #ddd;
+}
+[type="checkbox"]:disabled:checked + label:after {
+  color: #999;
+}
+[type="checkbox"]:disabled + label {
+  color: #aaa;
+}
+/* accessibility */
+[type="checkbox"]:checked:focus + label:before,
+[type="checkbox"]:not(:checked):focus + label:before {
+  border: 1px dotted blue;
+}
+
+/* hover style just for information */
+label:hover:before {
+  border: 1px solid #4778d9!important;
+}
+
+.txtcenter {
+  margin-top: 4em;
+  font-size: .9em;
+  text-align: center;
+  color: #aaa;
+}
+.copy {
+ margin-top: 2em;
+}
+.copy a {
+ text-decoration: none;
+ color: #4778d9;
+}
+
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+</head>
+
+<body>
+
+<div class="container" style="vertical-align: center; display: none;">
+
+    <div class="row">
+        <div class="col-md-offset-3 col-md-6" style="background-color: #eee; box-shadow: 0px 0px 3px 2px rgba(240,240,240,1);">
+
+            <form class="form-signin" action="" method="post" name="risks">
+                {{ form.hidden_tag() }}
+                <h2 class="form-signin-heading" style="font-family: 'Cinzel', serif; border-bottom: 1px solid black; padding-bottom: 5px">
+                    Asclepius</h2>
+                <h2 class="form-signin-heading" style="padding: 10px">Add Risk Factors</h2>
+                <input type="checkbox" checked data-toggle="toggle" data-onstyle="danger">
+
+                <ul class="list-group">
+                    {% for risk in form.risks_list %}
+                    <li class="list-group-item" style="min-width: 40px">
+                        {{ risk(style="margin-right: 15px") }}{{ risk.label }}
+                    </li>
+                    {% endfor %}
+                </ul>
+                <div align="center" style="padding: 10px">
+
+                    <input type="submit" class="btn btn-success btn-lg" value="Add Risk Factors">
+                </div>
+            </form>
+        </div>
+    </div>
+</div> <!-- /container -->
+
+
+</body>
+</html>

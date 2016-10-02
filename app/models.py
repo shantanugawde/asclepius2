@@ -12,9 +12,11 @@ globalhistory = db.Table('globalhistory',
                          db.Column('symptom_id', db.String, db.ForeignKey('symptoms.id'))
                          )
 riskuser = db.Table('riskuser',
-                            db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
-                            db.Column('risk_id', db.String, db.ForeignKey('risks.id'))
-                            )
+                    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+                    db.Column('risk_id', db.String, db.ForeignKey('risks.id'))
+                    )
+
+
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
 
@@ -23,14 +25,16 @@ class User(UserMixin, db.Model):
     age = db.Column(db.Integer)
     email = db.Column(db.String(120), unique=True, index=True)
     gender = db.Column(db.String(120))
+    locality = db.Column(db.String(120))
     conditions = db.relationship('Condition',
-                                secondary=conditionhistory,
-                                backref=db.backref('users', lazy='dynamic'),
-                                lazy='dynamic')
+                                 secondary=conditionhistory,
+                                 backref=db.backref('users', lazy='dynamic'),
+                                 lazy='dynamic')
     risks = db.relationship('Risk',
-                                secondary=riskuser,
-                                backref=db.backref('users', lazy='dynamic'),
-                                lazy='dynamic')
+                                 secondary=riskuser,
+                                 backref=db.backref('users', lazy='dynamic'),
+                                 lazy='dynamic')
+
     password_hash = db.Column(db.String(128))
 
     family_id = db.Column(db.Integer, default=0)
@@ -46,12 +50,13 @@ class User(UserMixin, db.Model):
             if not member.has_family():
                 member.family_id = self.family_id
 
+    def get_family(self):
+        if self.has_family():
+            return User.query.filter(self.family_id == User.family_id).all()
+
     def has_family(self):
         return self.family_id != 0
-    
-    def get_family(self):
-	    if self.has_family():
-		    return User.query.filter(self.family_id == User.family_id).all()
+
     @property
     def lastfamily(self):
         return User.query.order_by('id desc').first().id
@@ -83,9 +88,9 @@ class User(UserMixin, db.Model):
 
     def has_risk(self, risk):
         return self.risks.filter(riskuser.c.risk_id == risk.id).count() > 0
-    
+
     def get_risk(self):
-	    return self.risks.all()
+        return self.risks.all()
 
     def __repr__(self):
         return '<User %r>' % (self.name)
@@ -95,7 +100,7 @@ class Symptom(db.Model):
     __tablename__ = 'symptoms'
 
     id = db.Column(db.String(30), primary_key=True)
-    label = db.Column(db.String(360), unique=True)
+    label = db.Column(db.String(360))
 
     def __repr__(self):
         return '<Symptom %r>' % (self.label)
@@ -107,9 +112,9 @@ class Condition(db.Model):
     id = db.Column(db.String(30), primary_key=True)
     name = db.Column(db.String(360))
     symptoms = db.relationship('Symptom',
-                                 secondary=globalhistory,
-                                 backref=db.backref('conditions', lazy='dynamic'),
-                                 lazy='dynamic')
+                               secondary=globalhistory,
+                               backref=db.backref('conditions', lazy='dynamic'),
+                               lazy='dynamic')
 
     def add_symptom(self, symptom):
         if not self.has_symptom(symptom):
@@ -124,12 +129,16 @@ class Condition(db.Model):
     def __repr__(self):
         return '<Condition %r>' % (self.name)
 
+
 class Risk(db.Model):
     __tablename__ = 'risks'
     id = db.Column(db.String(30), primary_key=True)
     name = db.Column(db.String(360), unique=True)
+
     def __repr__(self):
         return '<Risk %r>' % (self.name)
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))

@@ -1,5 +1,5 @@
 from app import app, db, mail
-from flask import render_template, flash, redirect, url_for, request, g
+from flask import render_template, flash, redirect, url_for, request, g, jsonify
 from flask_login import login_required, current_user, logout_user, login_user
 from config import api
 from .forms import SymptomsForm, ConditionsForm, SearchPhrasesForm, RegistrationForm, LoginForm, SearchFamilyForm, \
@@ -96,9 +96,9 @@ def conditions(phrase):
             family_list = g.user.get_family()
             for fam in family_list:
                 text_body = render_template("diagnosis_mail.txt", parent=fam.name, minor=g.user.name,
-                                       conditions=possible_conditions.conditions[:MAX_CONDITIONS])
+                                            conditions=possible_conditions.conditions[:MAX_CONDITIONS])
                 html_body = render_template("diagnosis_mail.html", parent=fam.name, minor=g.user.name,
-                                       conditions=possible_conditions.conditions[:MAX_CONDITIONS])
+                                            conditions=possible_conditions.conditions[:MAX_CONDITIONS])
                 subject = 'Family Diagnosis'
                 sender = 'Asclepius'
                 recipients = [fam.email]
@@ -109,29 +109,39 @@ def conditions(phrase):
     return render_template('conditions.html', title=title, form=form, probability_mapping=probability_mapping)
 
 
-@app.route('/_myfamily')
-def get_myfamlist():
-    my_family = User.query.filter_by(family_id=g.user.family_id).all()
-    return my_family
-
-
-@app.route('/family', methods=['GET', 'POST'])
+@app.route('/addfamily', methods=['GET', 'POST'])
 @login_required
-def family():
+def addfamily():
     form = SearchFamilyForm()
     if g.user.family_id != 0:
         allmembers = User.query.filter_by(family_id=0).all()
     else:
         allmembers = User.query.all()
     form.members.choices = [(x.id, x.name) for x in allmembers if x.id != g.user.id]
-    form.my_members.choices = [(x.id, x.name) for x in get_myfamlist() if x.id != 0 and x.id != g.user.id]
+
     if form.validate_on_submit:
         selected_member = User.query.filter_by(id=form.members.data).first()
         if selected_member is not None:
             g.user.add_member(selected_member)
             db.session.commit()
+            return redirect(url_for('viewfamily'))
 
-    return render_template('family.html', title='Family', form=form)
+    return render_template('addfamily.html', title='Add to Family', form=form)
+
+
+@app.route('/viewfamily', methods=['GET', 'POST'])
+@login_required
+def viewfamily():
+    form = SearchFamilyForm()
+    if g.user.family_id != 0:
+        allmembers = User.query.filter_by(family_id=0).all()
+    else:
+        allmembers = User.query.all()
+    form.members.choices = [(x.id, x.name) for x in allmembers if x.family_id != g.user.family_id]
+    my_family = User.query.filter_by(family_id=g.user.family_id).all()
+    form.my_members.choices = [(x.id, x.name) for x in my_family if
+                               x.family_id != 0 and x.id != g.user.id]
+    return render_template('viewfamily.html', title='View Family', form=form)
 
 
 @app.route('/risk/<email>', methods=['GET', 'POST'])

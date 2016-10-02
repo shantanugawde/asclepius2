@@ -6,7 +6,11 @@
         <div class="page-header">
             <h1 style="text-align: center">Condition Log</h1>
         </div>
+        {% if conditions|length > 0 %}
         <p class="lead" style="margin-top: 20px">Past conditions diagnosed by Asclepius</p>
+        {% else %}
+        <p class="lead" style="margin-top: 20px">No conditions diagnosed yet</p>
+        {% endif %}
     </div>
 
 

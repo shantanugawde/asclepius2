@@ -69,6 +69,8 @@
         {% endblock %}
 
     </style>
+    <script src="{{ url_for('static', filename='jquery-3.1.0.min.js') }}"></script>
+    {% block headscript %}{% endblock %}
 </head>
 <body>
 
@@ -95,7 +97,8 @@
                 <li><a href="{{ url_for('searchphrases') }}">Diagnose</a></li>
                 <li><a href="{{ url_for('conditionhistory') }}">Condition Log</a></li>
                 <li><a href="{{ url_for('globalhistory') }}">Global History</a></li>
-                <li><a href="{{ url_for('family') }}">My Family</a></li>
+                <li><a href="{{ url_for('addfamily') }}">Add to Family</a></li>
+                <li><a href="{{ url_for('viewfamily') }}">View Family</a></li>
             </ul>
 
             <ul class="nav navbar-nav navbar-right">

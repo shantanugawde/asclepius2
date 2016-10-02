@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container" style="padding-top: 3%; display: none">
+    <div class="col-md-8 col-md-offset-2" style="color: black">
+        <div class="page-header">
+            <h1 style="text-align: center">My Family</h1>
+        </div>
+        <p class="lead" style="margin-top: 20px; text-align:center">Add members to your family to get updates about
+            them</p>
+    </div>
+    <!--<form action="" method="post" , name="family">-->
+    <!--{{ form.hidden_tag() }}-->
+    <div class="row" style="padding-top: 20px; font-family: 'Josefin Sans', sans-serif; font-size: 16px;">
+        <div align="center">
+            <div class="col-md-8 col-md-offset-2">
+                {% if form.members.choices|length > 0 %}
+                <div class="input-group">
+                    {{ form.members(class='form-control') }}
+                    <span class="input-group-btn">
+                            <button id="addbtn" class="btn btn-default">Add</button>
+                      </span>
+                </div>
+                {% else %}
+                <h2>No users to add to your family</h2>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <!--</form>-->
+    <div class="row"
+         style="padding-top: 20px; padding-bottom: 20px; font-family: 'Josefin Sans', sans-serif; font-size: 16px; border-top: 1px">
+        <div align="center">
+            <div class="col-md-8 col-md-offset-2">
+                <div class="page-header">
+                    <h2>Family Members</h2>
+                </div>
+                <ul class="list-group" id="myfam">
+                    {% if form.my_members.choices|length > 0 %}
+                    {% for mem in form.my_members %}
+                    <li class="list-group-item">{{ mem.label }}</li>
+                    {% endfor %}
+                    {% else %}
+                    <li class="list-group-item">No users added to your family yet</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block headscript %}
+<script>
+    var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    $(function() {
+        $(".container").fadeIn("slow");
+        var submit_form = function(e) {
+        $("#myfam").empty();
+        $("#members").empty();
+        $.getJSON($SCRIPT_ROOT + '/_familychoices',{sel_id: $("#members").val()}, function(data) {
+                    $.each( data, function( key, val ) {
+                        $("#members").append( "<option value=\""+key+"\">"+val+"</option>" );
+                    });
+                });
+        }
+
+        $.getJSON($SCRIPT_ROOT + '/_myfamily', function(data) {
+            $.each( data, function( key, val ) {
+                $("#myfam").append( "<li class=\"list-group-item\">" + val + "</li>" );
+            });
+        });
+
+
+
+        $("#addbtn").bind("click", submit_form)
+
+
+    });
+
+
+</script>
+{% endblock %}

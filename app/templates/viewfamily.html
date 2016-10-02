@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container" style="padding-top: 3%; display: none">
+
+
+    <div class="row"
+         style="padding-top: 20px; padding-bottom: 20px; font-family: 'Josefin Sans', sans-serif; font-size: 16px; border-top: 1px">
+        <div align="center">
+            <div class="col-md-8 col-md-offset-2">
+                <div class="page-header">
+                    <h2>Family Members</h2>
+                </div>
+                {% if form.my_members.choices|length > 0 %}
+                <ul class="list-group" id="myfam">
+                    {% for mem in form.my_members %}
+                    <li class="list-group-item">{{ mem.label }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>No users added to your family yet</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block headscript %}
+<script>
+    var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    $(function() {
+        $(".container").fadeIn("slow");
+
+    });
+
+</script>
+{% endblock %}

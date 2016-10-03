@@ -8,22 +8,25 @@
         <p class="lead" style="margin-top: 20px; text-align:center">Add members to your family to get updates about
             them</p>
     </div>
-    <form action="" method="post" , name="family">
-        {{ form.hidden_tag() }}
-        <div class="row" style="padding-top: 20px; font-family: 'Josefin Sans', sans-serif; font-size: 16px;">
-            <div align="center">
-                <div class="col-md-8 col-md-offset-2">
-                    {% if form.members.choices|length > 0 %}
-                    {{ form.members }}
-                    <input type="submit" value="Add">
-
-                    {% else %}
-                    <h2>No users to add to your family</h2>
-                    {% endif %}
+    <!--<form action="" method="post" , name="family">-->
+    <!--{{ form.hidden_tag() }}-->
+    <div class="row" style="padding-top: 20px; font-family: 'Josefin Sans', sans-serif; font-size: 16px;">
+        <div align="center">
+            <div id="dropdiv" class="col-md-8 col-md-offset-2">
+                {% if form.members.choices|length > 0 %}
+                <div class="input-group">
+                    {{ form.members(class='form-control') }}
+                    <span class="input-group-btn">
+                            <button id="addbtn" class="btn btn-default">Add</button>
+                      </span>
                 </div>
+                {% else %}
+                <h2>No users to add to your family</h2>
+                {% endif %}
             </div>
         </div>
-    </form>
+    </div>
+    <!--</form>-->
     <div class="row"
          style="padding-top: 20px; padding-bottom: 20px; font-family: 'Josefin Sans', sans-serif; font-size: 16px; border-top: 1px">
         <div align="center">
@@ -31,27 +34,62 @@
                 <div class="page-header">
                     <h2>Family Members</h2>
                 </div>
-                {% if form.my_members.choices|length > 0 %}
-                <ul class="list-group">
+                <ul class="list-group" id="myfam">
+                    {% if form.my_members.choices|length > 0 %}
                     {% for mem in form.my_members %}
                     <li class="list-group-item">{{ mem.label }}</li>
                     {% endfor %}
+                    {% else %}
+                    <li class="list-group-item">No users added to your family yet</li>
+                    {% endif %}
                 </ul>
-                {% else %}
-                <p>No users added to your family yet</p>
-                {% endif %}
             </div>
         </div>
     </div>
 </div>
 {% endblock %}
-{% block myscript %}
+{% block headscript %}
 <script>
-        $(function() {
-            $(".container").fadeIn("slow");
-  	    });
+    var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    $(function() {
+        $(".container").fadeIn("slow");
+        var submit_form = function(e) {
+            $.getJSON($SCRIPT_ROOT + '/_familychoices',{sel_id: $("#members").val()}, function(data) {
+                        $("#members").empty();
+                        var count = 0;
+                        $.each( data, function( key, val ) {
+                            count++;
+                            $("#members").append( "<option value=\""+key+"\">"+val+"</option>" );
+                        });
+
+                        if(count==0){
+                            $("#dropdiv").empty();
+                            $("#dropdiv").append("<h2>No users to add to your family</h2>");
+                        }
+						
+						$.getJSON($SCRIPT_ROOT + '/_myfamily', function(data) {
+                            $("#myfam").empty();
 
 
+                            $.each( data, function( key, val ) {
+
+                                $("#myfam").append( "<li class=\"list-group-item\">" + val + "</li>" );
+                            });
+                        });
+                    });
+
+        }
+        $("#addbtn").bind("click", submit_form)
+
+        $("#addbtn").hover(function(){
+            $(this).removeClass("btn-default");
+            $(this).addClass("btn-primary");
+        }, function(){
+            $(this).removeClass("btn-primary");
+            $(this).addClass("btn-default");
+        });
+
+    });
 
 
 </script>

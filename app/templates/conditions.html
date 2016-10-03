@@ -39,6 +39,10 @@
             $(".progress-bar").each(function(){
                 var progprec = parseFloat($(this).text().substr(0, 4));
                 var res = $(this).text().substr(0, 6);
+                var orgwidth = parseInt($(this).css("width"));
+                animateProp = {}
+                animateProp['width']= orgwidth;
+                $(this).css("width","0").animate(animateProp, 1000);
                if(progprec < 21){
                     $(this).addClass("progress-bar-success");
                     $(this).addClass("progress-bar-striped");

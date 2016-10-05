@@ -29,9 +29,10 @@ def searchphrases():
 @app.route('/symptoms/<phrase>', methods=['GET', 'POST'])
 @login_required
 def symptoms(phrase):
-    mytitle = phrase.replace("%20", " ")
+    g.myerror = ""
+    mytitle = phrase
     title = mytitle + " Symptoms"
-    tmp_list = phrase.strip().split('%20')
+    tmp_list = phrase.strip().split(' ')
     possible_symptoms = list()
     for p in tmp_list:
         possible_symptoms = possible_symptoms + api.search(p, sex=g.user.gender)
@@ -50,7 +51,10 @@ def symptoms(phrase):
         for symp in form.symptoms_list:
             if symp.checked:
                 selected_symptoms.append(symp.data)
-        return redirect(url_for('conditions', phrase=phrase))
+        if(len(selected_symptoms) > 0):
+            return redirect(url_for('conditions', phrase=phrase))
+        else:
+            g.myerror = "You must select at least one symptom for diagnosis"
     return render_template('symptoms.html', title=title, form=form)
 
 
@@ -79,7 +83,7 @@ def conditions(phrase):
         cond = Condition(id=x['id'], name=x['name'])
         if len(Condition.query.filter_by(id=cond.id).all()) == 0:
             db.session.add(cond)
-        g.user.add_condition(cond)
+        g.user.add_condition(cond, float('%0.2f' % probability_mapping[x['id']]))
 
     db.session.commit()
 
@@ -188,7 +192,6 @@ def risk(email):
     selected_risks = Risk.query.all()
     form.risks_list.choices = [(x.id, x.name) for x in selected_risks]
     user1 = User.query.filter_by(email=email).first()
-    # flash(user1)
     if form.validate_on_submit():
         selected_risks.clear()
         for r in form.risks_list:
@@ -203,7 +206,7 @@ def risk(email):
 @app.route('/conditionhistory')
 @login_required
 def conditionhistory():
-    return render_template('conditionhistory.html', conditions=g.user.get_conditions())
+    return render_template('conditionhistory.html', conditions=g.user.get_conditionlog())
 
 
 @app.route('/globalhistory')
@@ -215,17 +218,20 @@ def globalhistory():
 
 @app.route('/registration', methods=['GET', 'POST'])
 def registration():
-    # title = "Registration"
     form = RegistrationForm()
-
+    g.myerror = ""
     if form.validate_on_submit():
         u = User(name=form.name.data, email=form.email.data, age=form.age.data, gender=form.gender.data,
                  locality=form.locality.data)
         u.password = form.password.data
-        db.session.add(u)
-        db.session.commit()
-        flash('Registration Successful')
-        return redirect(url_for('risk', email=form.email.data))
+        checkuser = User.query.filter_by(email=form.email.data).first()
+        if checkuser is None:
+            db.session.add(u)
+            db.session.commit()
+            flash('Registration Successful')
+            return redirect(url_for('risk', email=form.email.data))
+        else:
+            g.myerror = "This user already exists"
     return render_template('registration.html', form=form)
 
 
@@ -240,6 +246,7 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+    g.myerror="";
     if g.user is not None and g.user.is_authenticated:
         return redirect(url_for('index'))
     if form.validate_on_submit():
@@ -247,7 +254,9 @@ def login():
         if user is not None and user.verify_password(form.password.data):
             login_user(user, form.remember_me.data)
             return redirect(url_for('index'))
-        flash('Invalid username or password.')
+        else:
+            g.myerror='Invalid email or password.'
+            flash('Invalid username or password.')
     return render_template('login.html', form=form)
 
 
@@ -288,6 +297,17 @@ def logout():
 @app.before_request
 def before_request():
     g.user = current_user
+
+
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('404.html', title='404 Not Found'), 404
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    db.session.rollback()
+    return render_template('500.html', title='500 Server Error'), 500
 
 
 def send_email(subject, sender, recipients, text_body, html_body):

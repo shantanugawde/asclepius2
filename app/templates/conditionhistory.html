@@ -18,9 +18,9 @@
         <div class="col-md-8 col-md-offset-2" style="padding-bottom:0px">
             <ul class="list-group">
                 {% for condition in conditions %}
-                <li class="list-group-item">{{ condition.name }}</li>
+                <li class="list-group-item">{{ condition.logged_condition.name }} {{ condition.timestamp.strftime('%H:%M %d-%B-%Y') }}
+                    {{condition.probability}}</li>
                 {% endfor %}
-
 
             </ul>
         </div><!-- /.col-lg-6 -->

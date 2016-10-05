@@ -14,6 +14,7 @@
 
     <!-- Latest compiled and minified JavaScript -->
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
 
     <!-- Custom styles for this template -->
     <link href="{{ url_for('static', filename='css/signin.css') }}" rel="stylesheet">
@@ -41,7 +42,7 @@
                 {{ form.hidden_tag() }}
                 <h2 class="form-signin-heading"
                     style="font-family: 'Cinzel', serif; border-bottom: 1px solid black; padding-bottom: 5px">
-                    Asclepius</h2>
+                    <a href="{{ url_for('index') }}" style="text-decoration: inherit; color: inherit">Asclepius</a></h2>
 
                 <div class="input-group">
                     <span class="input-group-addon" id="basic-addon1"><i class="material-icons">person</i></span>
@@ -77,7 +78,17 @@
                     <span class="input-group-addon" id="basic-addon6"><i class="fa fa-venus-mars fa-lg"></i></span>
                     {{ form.gender(class="form-control") }}
                 </div>
-
+                <div style="text-align: center; color: #CC0000; font-size:16px; padding: 5px 0px 10px 0px">
+                    {% for field, errors in form.errors.items() %}
+                            {% for error in errors %}
+                                {{ error }}<br>
+                            {% endfor %}
+                        {% endfor %}
+                    {% if g.myerror != "" %}
+                    {{g.myerror}}<br>
+                    <a href="{{ url_for('login')}}">Do you wish to login?</a>
+                    {% endif %}
+                </div>
                 <button class="btn btn-lg btn-primary btn-block" style="margin: 10px 0px 10px 0px;" type="submit">
                     Register
                 </button>

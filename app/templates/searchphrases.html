@@ -52,9 +52,10 @@ color: #f0f0f0;
             </div><!-- /.col-lg-6 -->
         </div><!-- /.row -->
         <div class="row" style="padding-top: 20px; font-family: 'Josefin Sans', sans-serif; font-size: 16px;">
-            <div align="center">
-
-
+            <div align="center" style="text-align: center; color: #CC0000;">
+                    {% for error in form.phrases.errors%}
+                        <p class="lead" id="errormsg">{{error}}</p>
+                    {% endfor %}
             </div>
         </div>
         <div class="row" style="padding-top: 20px; font-family: 'Josefin Sans', sans-serif; font-size: 16px;">
@@ -77,6 +78,7 @@ color: #f0f0f0;
             $('#addbtn').click(function() {
                 $("#phraseholder").append("<div class=\"chip\" id=\'c_"+num+"\'>"+$("#phrasebox").val()+"<span class=\"closebtn\">&times;</span></div>");
                 $("#c_"+num).hide().fadeIn("fast");
+                $("#errormsg").remove();
                 num++;
 
 
@@ -94,14 +96,19 @@ color: #f0f0f0;
                     var mylen = $(this).text().length;
                     var mystr = $(this).text().substr(0,mylen-1);
                     if($('#phrases').val()!=''){
-                        $('#phrases').val($('#phrases').val() + '%20' + mystr);
+                        $('#phrases').val($('#phrases').val() + ' ' + mystr);
                     }
                     else{
                         $('#phrases').val(mystr);
                     }
                 });
                 if($('#phrasebox').val()!=''){
-                        $('#phrases').val($('#phrases').val() + '%20' + $('#phrasebox').val());
+                    if($('#phrases').val()=='' && $('#phrasebox').val()==''){
+                        $('#phrases').val($('#phrasebox').val());
+                    }
+                    else{
+                        $('#phrases').val($('#phrases').val() + ' ' + $('#phrasebox').val());
+                    }
                 }
 
             });

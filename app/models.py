@@ -1,6 +1,8 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, login_manager
 from flask_login import UserMixin
+from datetime import datetime
+from sqlalchemy import and_
 
 conditionhistory = db.Table('conditionhistory',
                             db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
@@ -17,24 +19,35 @@ riskuser = db.Table('riskuser',
                     )
 
 
+class UserConditionHistory(db.Model):
+    __tablename__ = 'userconditionhistory'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    condition_id = db.Column(db.String, db.ForeignKey('conditions.id'))
+    timestamp = db.Column(db.DateTime)
+    probability = db.Column(db.Float)
+    logged_condition = db.relationship('Condition', backref=db.backref('conditions'))
+
+
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120), unique=True, index=True)
+    name = db.Column(db.String(120))
     age = db.Column(db.Integer)
     email = db.Column(db.String(120), unique=True, index=True)
     gender = db.Column(db.String(120))
     locality = db.Column(db.String(120))
-    conditions = db.relationship('Condition',
-                                 secondary=conditionhistory,
-                                 backref=db.backref('users', lazy='dynamic'),
-                                 lazy='dynamic')
-    risks = db.relationship('Risk',
-                                 secondary=riskuser,
-                                 backref=db.backref('users', lazy='dynamic'),
-                                 lazy='dynamic')
+    # conditions = db.relationship('Condition',
+    #                              secondary=conditionhistory,
+    #                              backref=db.backref('users', lazy='dynamic'),
+    #                              lazy='dynamic')
 
+    risks = db.relationship('Risk',
+                            secondary=riskuser,
+                            backref=db.backref('users', lazy='dynamic'),
+                            lazy='dynamic')
+    mylog = db.relationship('UserConditionHistory', backref=db.backref('users'), order_by='desc(UserConditionHistory.timestamp)')
     password_hash = db.Column(db.String(128))
 
     family_id = db.Column(db.Integer, default=0)
@@ -72,15 +85,26 @@ class User(UserMixin, db.Model):
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-    def add_condition(self, condition):
+    # def add_condition(self, condition):
+    #     if not self.has_condition(condition):
+    #         self.conditions.append(condition)
+    #
+    # def has_condition(self, condition):
+    #     return self.conditions.filter(conditionhistory.c.condition_id == condition.id).count() > 0
+    #
+    # def get_conditions(self):
+    #     return self.conditions.all()
+
+    def add_condition(self, condition, probability):
         if not self.has_condition(condition):
-            self.conditions.append(condition)
+            uc_log = UserConditionHistory(probability=probability, timestamp=datetime.now(), logged_condition=condition)
+            self.mylog.append(uc_log)
 
     def has_condition(self, condition):
-        return self.conditions.filter(conditionhistory.c.condition_id == condition.id).count() > 0
+        return UserConditionHistory.query.filter(and_(UserConditionHistory.condition_id == condition.id, UserConditionHistory.user_id == self.id)).first() is not None
 
-    def get_conditions(self):
-        return self.conditions.all()
+    def get_conditionlog(self):
+        return self.mylog
 
     def add_risk(self, risk):
         if not self.has_risk(risk):

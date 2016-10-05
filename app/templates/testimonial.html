@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container" style="padding-top: 3%;display: none">
+    <div class="col-md-8 col-md-offset-2" style="color: black">
+        <div class="page-header">
+            <h1 style="text-align: center">Testimonials</h1>
+        </div>
+        {% if posts|length > 0 %}
+        <p class="lead" style="margin-top: 20px">Testimonials by users of Asclepius</p>
+        {% else %}
+        <p class="lead" style="margin-top: 20px">No testimonails by users</p>
+        {% endif %}
+			<textarea row="5" style="width: 100%" id="postcomment" placeholder="Enter a comment.."></textarea>
+		<div class = "row">
+			<div class = "pull-right col-md-2">
+				<button id="submitpost" class="btn btn-primary">Post</button>
+			</div>
+		</div>
+		<br>
+			<div id="all_posts">
+                {% for post in posts %}
+					<div class="panel panel-primary">
+					  <div class="panel-heading">
+						<h3 class="panel-title">{{post.name}}</h3>
+					  </div>
+					  <div class="panel-body" style="font-size:14px">
+						{{post.content}}
+						<br>
+						<p style="text-align:right;font-size:14px">{{post.date.strftime('%H:%M %d-%B-%Y')}}</p>
+					  </div>
+					</div>
+                {% endfor %}
+			</div>
+    </div>
+
+</div>
+{% endblock %}
+{% block myscript %}
+<script>
+	$(function(){
+		$(".container").fadeIn("slow");
+		var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+		$('#submitpost').click(function(){
+			$.ajax({
+				type: 'get',
+				url: $SCRIPT_ROOT + '/_postcomment',
+				data: {
+				content: $('#postcomment').val()
+				},
+				success: function(comment) {
+					console.log(comment);
+					$('#all_posts').prepend('<div class="panel panel-primary">'+
+					  '<div class="panel-heading">'+
+						'<h3 class="panel-title">'+comment.name+'</h3>'+
+					  '</div>'+
+					  '<div class="panel-body" style="font-size:14px">'+comment.content+
+						'<br>'+
+						'<p style="text-align:right;font-size:14px">'+comment.date+'</p>'+
+					  '</div>'+
+					'</div>')
+					$("#postcomment").val("");
+				},
+				error: function(){
+					console.log("error");
+				}
+			});
+		});
+	});
+</script>
+{% endblock %}

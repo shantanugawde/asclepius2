@@ -4,13 +4,15 @@ from flask_login import login_required, current_user, logout_user, login_user
 from config import api
 from .forms import SymptomsForm, ConditionsForm, SearchPhrasesForm, RegistrationForm, LoginForm, SearchFamilyForm, \
     RisksForm, SearchDoctorForm
-from .models import User, Condition, Symptom, Risk
+from .models import User, Condition, Symptom, Risk, Post
 import infermedica_api
 from config import gmaps
 from urllib.request import urlopen
 import json
 from flask_mail import Message
 import sys
+from sqlalchemy import desc
+from datetime import datetime
 
 selected_symptoms = list()
 
@@ -293,6 +295,32 @@ def logout():
     flash('You have been logged out')
     return redirect(url_for('index'))
 
+@app.route('/testimonial', methods=['GET','POST'])
+@login_required
+def testimonial():
+    posts = Post.query.order_by(desc(Post.date)).all()
+    list_posts = list()
+    for i in posts:
+        dict_posts = dict()
+        dict_posts["id"] = i.id
+        dict_posts["name"] = i.name
+        dict_posts["content"] = i.content
+        dict_posts["date"] = i.date
+        list_posts.append(dict_posts)
+    return render_template('testimonial.html', posts = list_posts)
+ 
+@app.route('/_postcomment',methods=['GET','POST'])
+def postcomment():
+    content = request.args.get("content")
+    date = datetime.now()
+    post = Post(name = g.user.name,content = content, date = date)
+    db.session.add(post)
+    db.session.commit()
+    dict1 = dict()
+    dict1["name"] = g.user.name
+    dict1["content"] = content
+    dict1["date"] = date.strftime('%H:%M %d-%B-%Y')
+    return jsonify(dict1)
 
 @app.before_request
 def before_request():

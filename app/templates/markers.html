@@ -95,8 +95,8 @@
 
                 <li><a href="{{ url_for('searchdoctor') }}">Search Doctors</a></li>
                 <li><a href="{{ url_for('searchphrases') }}">Diagnose</a></li>
-                <li><a href="{{ url_for('conditionhistory') }}">Conditions</a></li>
-                <li><a href="{{ url_for('globalhistory') }}">History</a></li>
+                <li><a href="{{ url_for('conditionhistory') }}">Medical Journal</a></li>
+                <li><a href="{{ url_for('globalhistory') }}">Global History</a></li>
                 <!--<li><a href="{{ url_for('addfamily') }}">Add to Family</a></li>-->
                 <!--<li><a href="{{ url_for('viewfamily') }}">View Family</a></li>-->
                 <li><a href="{{ url_for('viewfamily') }}">View Family</a></li>
@@ -185,7 +185,9 @@
 
 <footer class="footer">
     <div class="container">
-        <p class="text-muted">About Us</p>
+        <p class="text-muted"><a href="#" style="text-decoration: inherit; color: inherit">Testimonials</a>
+        <a href="{{ url_for('aboutus') }}" style="margin-left: 40%; text-decoration: inherit; color: inherit">About Us</a>
+            <span style="margin-left: 20%">Contact Us: asclepius.diagnosis@gmail.com</span></p>
     </div>
 </footer>
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

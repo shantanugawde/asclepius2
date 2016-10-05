@@ -3,7 +3,7 @@ from flask import render_template, flash, redirect, url_for, request, g, jsonify
 from flask_login import login_required, current_user, logout_user, login_user
 from config import api
 from .forms import SymptomsForm, ConditionsForm, SearchPhrasesForm, RegistrationForm, LoginForm, SearchFamilyForm, \
-    RisksForm, SearchDoctorForm
+    RisksForm, SearchDoctorForm, ConditionHistoryForm
 from .models import User, Condition, Symptom, Risk
 import infermedica_api
 from config import gmaps
@@ -203,10 +203,18 @@ def risk(email):
     return render_template('risks.html', email=email, form=form, i=0)
 
 
-@app.route('/conditionhistory')
+@app.route('/conditionhistory', methods=['GET', 'POST'])
 @login_required
 def conditionhistory():
-    return render_template('conditionhistory.html', conditions=g.user.get_conditionlog())
+    form = ConditionHistoryForm()
+    if form.validate_on_submit():
+        text_body = render_template("report.txt", conditions=g.user.get_conditionlog())
+        html_body = render_template("report.html", conditions=g.user.get_conditionlog())
+        subject = 'Medical Journal'
+        sender = 'Asclepius'
+        recipients = [g.user.email]
+        send_email(subject, sender, recipients, text_body, html_body)
+    return render_template('conditionhistory.html', conditions=g.user.get_conditionlog(), form=form)
 
 
 @app.route('/globalhistory')
@@ -229,6 +237,12 @@ def registration():
             db.session.add(u)
             db.session.commit()
             flash('Registration Successful')
+            text_body = render_template("registration_mail.txt", name=form.name.data)
+            html_body = render_template("registration_mail.html", name=form.name.data)
+            subject = 'Welcome to Asclepius'
+            sender = 'Asclepius'
+            recipients = [g.user.email]
+            send_email(subject, sender, recipients, text_body, html_body)
             return redirect(url_for('risk', email=form.email.data))
         else:
             g.myerror = "This user already exists"
@@ -241,6 +255,11 @@ def index():
     if g.user.is_authenticated:
         return redirect(url_for('consult'))
     return render_template('index.html')
+
+
+@app.route('/aboutus')
+def aboutus():
+    return render_template('aboutus.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])

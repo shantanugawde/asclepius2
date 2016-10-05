@@ -1,0 +1,7 @@
+Dear {{ name }},
+
+Welcome to Asclepius. You can now use the portal for a variety of healthcare services including self-diagnosis and doctor search.
+Mail us at asclepius.diagnosis@gmail.com for queries.
+
+Regards,
+Asclepius

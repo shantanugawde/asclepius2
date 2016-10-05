@@ -5,21 +5,27 @@
         <div class="page-header">
             <h1 style="text-align: center">Diagnosed Conditions</h1>
         </div>
+        {% if form.conditions_list|length > 0 %}
         <p class="lead" style="margin-top: 20px">Here is a list of possible conditions according to your selected
             symptoms, profile and risks, sorted by decreasing order of probability</p>
+        {% else %}
+        <p class="lead" style="margin-top: 20px">Could not diagnose any conditions for the selected symptoms</p>
+        {% endif %}
     </div>
     <form action="" method="post" name="conditions">
         {{ form.hidden_tag() }}
+        {% if form.conditions_list|length > 0 %}
         <div class="row">
             <div class="col-md-8 col-md-offset-2" style="padding-bottom:0px">
                 <ul class="list-group">
-
+                    {% set count = 0 %}
                     {% for condition in form.conditions_list %}
                     <li class="list-group-item">
                         {{ condition.label }}
                         <div class="progress" style="height: 20px">
                             <div class="progress-bar" role="progressbar" aria-valuenow="probability_mapping[condition.data]" aria-valuemin="0"
-                                 aria-valuemax="100" style="width: {{ probability_mapping[condition.data]}}%; color: black; height: 20px;">{{ '%.2f' % probability_mapping[condition.data] }}% Probability</div>
+                                 aria-valuemax="100" style="width: 0; color: black; height: 20px;" id="prog{{count}}">{{ '%.2f' % probability_mapping[condition.data] }}% Probability</div>
+                            {% set count=count+1 %}
                         </div>
                     </li>
                     {% endfor %}
@@ -30,6 +36,7 @@
              style="padding: 15px 0px 20px 0px; font-family: 'Josefin Sans', sans-serif; font-size: 16px; min-height: 60px; margin-bottom: 25px">
 
         </div>
+        {% endif %}
     </form>
 </div>
 {% endblock %}
@@ -39,10 +46,6 @@
             $(".progress-bar").each(function(){
                 var progprec = parseFloat($(this).text().substr(0, 4));
                 var res = $(this).text().substr(0, 6);
-                var orgwidth = parseInt($(this).css("width"));
-                animateProp = {}
-                animateProp['width']= orgwidth;
-                $(this).css("width","0").animate(animateProp, 1000);
                if(progprec < 21){
                     $(this).addClass("progress-bar-success");
                     $(this).addClass("progress-bar-striped");
@@ -57,6 +60,12 @@
                     $(this).addClass("progress-bar-striped");
                 }
             });
+            {% set count = 0 %}
+            {% for condition in form.conditions_list %}
+            $("#prog{{count}}").animate({width:"{{'%.2f' % probability_mapping[condition.data] }}%"},"slow");
+            {% set count = count + 1 %}
+            {% endfor %}
+
     });
 </script>
 {% endblock %}

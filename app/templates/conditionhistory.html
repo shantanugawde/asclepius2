@@ -2,30 +2,53 @@
 {% block content %}
 
 <div class="container" style="padding-top: 3%; display: none">
+     <form action="" method="post" name="conditionhistory">
+     {{ form.hidden_tag() }}
+         {{ form.cond }}
     <div class="col-md-8 col-md-offset-2" style="color: black">
         <div class="page-header">
-            <h1 style="text-align: center">Condition Log</h1>
+            <h1 style="text-align: center">Medical History</h1>
         </div>
         {% if conditions|length > 0 %}
-        <p class="lead" style="margin-top: 20px">Past conditions diagnosed by Asclepius</p>
+        <p class="lead" style="margin-top: 20px">Your medical journal, prepared by Asclepius</p>
         {% else %}
         <p class="lead" style="margin-top: 20px">No conditions diagnosed yet</p>
         {% endif %}
+	{% endwith %}
     </div>
 
 
     <div class="row">
-        <div class="col-md-8 col-md-offset-2" style="padding-bottom:0px">
-            <ul class="list-group">
-                {% for condition in conditions %}
-                <li class="list-group-item">{{ condition.logged_condition.name }} {{ condition.timestamp.strftime('%H:%M %d-%B-%Y') }}
-                    {{condition.probability}}</li>
-                {% endfor %}
+        <div class="col-md-8 col-md-offset-2" style="padding-bottom:20px">
+            {% if conditions|length > 0 %}
+            <table class="table table-striped table-hover">
+                {% set count = 1 %}
+            <tr>
+                <th>Sr. No.</th>
+                <th>Condition</th>
+                <th>Probability</th>
+                <th>Timestamp</th>
+            </tr>
+            {% for condition in conditions %}
+                <tr>
+                    <td>{{ count }}</td>
+                    <td>{{ condition.logged_condition.name }}</td>
+                    <td>{{ condition.probability }}%</td>
+                    <td>{{ condition.timestamp.strftime('%H:%M %d-%B-%Y') }}</td>
+                </tr>
+                {% set count = count + 1 %}
+            {% endfor %}
+            </table>
+            {% endif %}
 
-            </ul>
         </div><!-- /.col-lg-6 -->
     </div><!-- /.row -->
-
+    <div class="row" style="padding-top: 15px; margin-bottom: 40px; font-family: 'Josefin Sans', sans-serif; font-size: 16px;">
+            <div align="center">
+                    <input type="submit" class="btn btn-success btn-lg" value="Mail Medical Journal">
+            </div>
+    </div>
+    </form>
 </div>
 
 {% endblock %}

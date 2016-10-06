@@ -4,12 +4,14 @@ from flask_login import login_required, current_user, logout_user, login_user
 from config import api
 from .forms import SymptomsForm, ConditionsForm, SearchPhrasesForm, RegistrationForm, LoginForm, SearchFamilyForm, \
     RisksForm, SearchDoctorForm, ConditionHistoryForm
-from .models import User, Condition, Symptom, Risk
+from .models import User, Condition, Symptom, Risk, Post
 import infermedica_api
 from config import gmaps
 from urllib.request import urlopen
 import json
 from flask_mail import Message
+from sqlalchemy import desc
+from datetime import datetime
 import sys
 
 selected_symptoms = list()
@@ -51,7 +53,7 @@ def symptoms(phrase):
         for symp in form.symptoms_list:
             if symp.checked:
                 selected_symptoms.append(symp.data)
-        if(len(selected_symptoms) > 0):
+        if (len(selected_symptoms) > 0):
             return redirect(url_for('conditions', phrase=phrase))
         else:
             g.myerror = "You must select at least one symptom for diagnosis"
@@ -207,12 +209,14 @@ def risk(email):
 @login_required
 def conditionhistory():
     form = ConditionHistoryForm()
+    g.mymessage = ""
     if form.validate_on_submit():
         text_body = render_template("report.txt", conditions=g.user.get_conditionlog())
         html_body = render_template("report.html", conditions=g.user.get_conditionlog())
         subject = 'Medical Journal'
         sender = 'Asclepius'
         recipients = [g.user.email]
+        g.mymessage = 'Successfully mailed your Medical Journal to ' + g.user.email
         send_email(subject, sender, recipients, text_body, html_body)
     return render_template('conditionhistory.html', conditions=g.user.get_conditionlog(), form=form)
 
@@ -221,7 +225,7 @@ def conditionhistory():
 @login_required
 def globalhistory():
     all_conditions = Condition.query.all()
-    return render_template('globalhistory.html', all_conditions=all_conditions)
+    return render_template('globalhistory.html', title='Global History', all_conditions=all_conditions)
 
 
 @app.route('/registration', methods=['GET', 'POST'])
@@ -265,7 +269,7 @@ def aboutus():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-    g.myerror="";
+    g.myerror = "";
     if g.user is not None and g.user.is_authenticated:
         return redirect(url_for('index'))
     if form.validate_on_submit():
@@ -274,7 +278,7 @@ def login():
             login_user(user, form.remember_me.data)
             return redirect(url_for('index'))
         else:
-            g.myerror='Invalid email or password.'
+            g.myerror = 'Invalid email or password.'
             flash('Invalid username or password.')
     return render_template('login.html', form=form)
 
@@ -313,6 +317,35 @@ def logout():
     return redirect(url_for('index'))
 
 
+@app.route('/testimonial', methods=['GET', 'POST'])
+@login_required
+def testimonial():
+    posts = Post.query.order_by(desc(Post.date)).all()
+    list_posts = list()
+    for i in posts:
+        dict_posts = dict()
+        dict_posts["id"] = i.id
+        dict_posts["name"] = i.name
+        dict_posts["content"] = i.content
+        dict_posts["date"] = i.date
+        list_posts.append(dict_posts)
+    return render_template('testimonial.html', posts=list_posts)
+
+
+@app.route('/_postcomment', methods=['GET', 'POST'])
+def postcomment():
+    content = request.args.get("content")
+    date = datetime.now()
+    post = Post(name=g.user.name, content=content, date=date)
+    db.session.add(post)
+    db.session.commit()
+    dict1 = dict()
+    dict1["name"] = g.user.name
+    dict1["content"] = content
+    dict1["date"] = date.strftime('%H:%M %d-%B-%Y')
+    return jsonify(dict1)
+
+
 @app.before_request
 def before_request():
     g.user = current_user
@@ -327,6 +360,12 @@ def not_found_error(error):
 def internal_error(error):
     db.session.rollback()
     return render_template('500.html', title='500 Server Error'), 500
+
+
+@app.errorhandler(400)
+def internal_error(error):
+    db.session.rollback()
+    return render_template('400.html', title='400 Error'), 500
 
 
 def send_email(subject, sender, recipients, text_body, html_body):

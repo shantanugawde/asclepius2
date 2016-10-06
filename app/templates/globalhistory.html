@@ -6,8 +6,7 @@
             <h1 style="text-align: center">Global Medical History</h1>
         </div>
         {% if all_conditions|length > 0 %}
-        <p class="lead" style="margin-top: 20px">Cumulative list of symptoms that users selected for the
-            diagnosis of their condition</p>
+        <p class="lead" style="margin-top: 20px">Click on the condition to get a cumulative list of symptoms selected by all users</p>
         {% else %}
         <p class="lead" style="margin-top: 20px">No conditions diagnosed by Asclepius</p>
         {% endif %}
@@ -30,7 +29,7 @@
                          aria-labelledby=collapseListGroupHeading{{count}}>
                         <ul class=list-group>
                             {% for symp in condition.get_symptoms() %}
-                            <li class=list-group-item>{{ symp['label'] }}</li>
+                            <li class=list-group-item>  - {{ symp['label'] }}</li>
                             {% endfor %}
                         </ul>
                     </div>

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container" style="padding-top: 3%">
+    <div class="page-header" align="center">
+        <h1 style="font-family: 'Cinzel', serif; font-size: 40px">Asclepius</h1>
+    </div>
+    <div class="container" align="center" style="margin-top:5%; display: none">
+        <div class="row">
+
+            <div class="col-sm-10 col-sm-offset-1">
+
+                <img src="{{ url_for('static', filename='img/icon/labyrinth.svg') }}" style="max-height: 100px; max-width: 100px;">
+                <h2>400</h2>
+                <h3>Oops! It looks like Asclepius goofed up.</h3>
+                <h3><a href="{{url_for('index')}}">Back to Home</a></h3>
+                <!-- <p><a class="btn btn-embossed btn-primary view" role="button">View Details</a></p> -->
+            </div><!-- /.col-lg-4 -->
+
+        </div><!-- /.row -->
+    </div>
+</div>
+
+{% endblock %}
+{% block myscript %}
+<script>
+    $(function(){
+    $(".container").fadeIn(1000);
+    });
+</script>
+{% endblock %}

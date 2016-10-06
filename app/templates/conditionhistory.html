@@ -14,12 +14,13 @@
         {% else %}
         <p class="lead" style="margin-top: 20px">No conditions diagnosed yet</p>
         {% endif %}
-	{% endwith %}
     </div>
-
 
     <div class="row">
         <div class="col-md-8 col-md-offset-2" style="padding-bottom:20px">
+            {% if g.mymessage|length > 0%}
+            <h4 style="text-align:center; margin-bottom: 20px"><span class="label label-success">{{g.mymessage}}</span></h4>
+            {% endif %}
             {% if conditions|length > 0 %}
             <table class="table table-striped table-hover">
                 {% set count = 1 %}

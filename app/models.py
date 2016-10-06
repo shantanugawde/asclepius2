@@ -163,6 +163,17 @@ class Risk(db.Model):
         return '<Risk %r>' % (self.name)
 
 
+class Post(db.Model):
+    __tablename__ = 'posts'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    content = db.Column(db.String(360))
+    date = db.Column(db.DateTime)
+
+    def __repr__(self):
+        return '<Comment %r>' % (self.content)
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))

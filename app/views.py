@@ -57,7 +57,7 @@ def symptoms(phrase):
             return redirect(url_for('conditions', phrase=phrase))
         else:
             g.myerror = "You must select at least one symptom for diagnosis"
-    return render_template('symptoms.html', title=title, form=form)
+    return render_template('symptoms.html', title=title, mylen=len(possible_symptoms), form=form)
 
 
 @app.route('/conditions/<phrase>', methods=['GET', 'POST'])
@@ -98,21 +98,22 @@ def conditions(phrase):
 
     db.session.commit()
     if g.user.age < 18:
-        if g.user.has_family:
-            family_list = g.user.get_family()
-            for fam in family_list:
-                text_body = render_template("diagnosis_mail.txt", parent=fam.name, minor=g.user.name,
-                                            conditions=possible_conditions.conditions[:MAX_CONDITIONS])
-                html_body = render_template("diagnosis_mail.html", parent=fam.name, minor=g.user.name,
-                                            conditions=possible_conditions.conditions[:MAX_CONDITIONS])
-                subject = 'Family Diagnosis'
-                sender = 'Asclepius'
-                recipients = [fam.email]
-                send_email(subject, sender, recipients, text_body, html_body)
+        if len(possible_conditions.conditions[:MAX_CONDITIONS]) > 0:
+            if g.user.has_family:
+                family_list = g.user.get_family()
+                for fam in family_list:
+                    text_body = render_template("diagnosis_mail.txt", parent=fam.name, minor=g.user.name,
+                                                conditions=possible_conditions.conditions[:MAX_CONDITIONS])
+                    html_body = render_template("diagnosis_mail.html", parent=fam.name, minor=g.user.name,
+                                                conditions=possible_conditions.conditions[:MAX_CONDITIONS])
+                    subject = 'Family Diagnosis'
+                    sender = 'Asclepius'
+                    recipients = [fam.email]
+                    send_email(subject, sender, recipients, text_body, html_body)
     form = ConditionsForm()
     form.conditions_list.choices = [(x['id'], x['name']) for x in possible_conditions.conditions[:MAX_CONDITIONS]]
 
-    return render_template('conditions.html', title=title, form=form, probability_mapping=probability_mapping)
+    return render_template('conditions.html', title=title, form=form, mylen=len(possible_conditions.conditions[:MAX_CONDITIONS]),probability_mapping=probability_mapping)
 
 
 @app.route('/_myfamily')
@@ -245,7 +246,7 @@ def registration():
             html_body = render_template("registration_mail.html", name=form.name.data)
             subject = 'Welcome to Asclepius'
             sender = 'Asclepius'
-            recipients = [g.user.email]
+            recipients = [form.email.data]
             send_email(subject, sender, recipients, text_body, html_body)
             return redirect(url_for('risk', email=form.email.data))
         else:

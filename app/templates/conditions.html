@@ -1,11 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="container" style="padding-top: 3%">
+
     <div class="col-md-8 col-md-offset-2" style="color: black">
         <div class="page-header">
             <h1 style="text-align: center">Diagnosed Conditions</h1>
         </div>
-        {% if form.conditions_list|length > 0 %}
+        {% if mylen > 0 %}
         <p class="lead" style="margin-top: 20px">Here is a list of possible conditions according to your selected
             symptoms, profile and risks, sorted by decreasing order of probability</p>
         {% else %}
@@ -14,7 +15,7 @@
     </div>
     <form action="" method="post" name="conditions">
         {{ form.hidden_tag() }}
-        {% if form.conditions_list|length > 0 %}
+        {% if mylen > 0 %}
         <div class="row">
             <div class="col-md-8 col-md-offset-2" style="padding-bottom:0px">
                 <ul class="list-group">

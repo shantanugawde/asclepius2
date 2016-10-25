@@ -89,7 +89,7 @@ label:hover:before {
         <div class="page-header">
             <h1 style="text-align: center">Select Symptoms</h1>
         </div>
-        {% if form.symptoms_list|length > 0 %}
+        {% if mylen > 0 %}
         <p class="lead" style="margin-top: 20px">Check applicable symptoms to diagnose conditions</p>
         {% else %}
         <p class="lead" style="margin-top: 20px">Unable to find any symptoms for the given keywords</p>
@@ -97,7 +97,7 @@ label:hover:before {
     </div>
     <form action="" method="post" name="symptoms">
         {{ form.hidden_tag() }}
-        {% if form.symptoms_list|length > 0 %}
+        {% if mylen > 0 %}
         <div class="row">
             <div class="col-md-8 col-md-offset-2" style="padding-bottom:0px">
                 <ul class="list-group">

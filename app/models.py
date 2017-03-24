@@ -5,16 +5,21 @@ from datetime import datetime
 from sqlalchemy import and_
 
 conditionhistory = db.Table('conditionhistory',
-                            db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
-                            db.Column('condition_id', db.String, db.ForeignKey('conditions.id'))
+                            db.Column('user_id', db.Integer,
+                                      db.ForeignKey('users.id')),
+                            db.Column('condition_id', db.String,
+                                      db.ForeignKey('conditions.id'))
                             )
 
 globalhistory = db.Table('globalhistory',
-                         db.Column('condition_id', db.String, db.ForeignKey('conditions.id')),
-                         db.Column('symptom_id', db.String, db.ForeignKey('symptoms.id'))
+                         db.Column('condition_id', db.String,
+                                   db.ForeignKey('conditions.id')),
+                         db.Column('symptom_id', db.String,
+                                   db.ForeignKey('symptoms.id'))
                          )
 riskuser = db.Table('riskuser',
-                    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+                    db.Column('user_id', db.Integer,
+                              db.ForeignKey('users.id')),
                     db.Column('risk_id', db.String, db.ForeignKey('risks.id'))
                     )
 
@@ -26,7 +31,8 @@ class UserConditionHistory(db.Model):
     condition_id = db.Column(db.String, db.ForeignKey('conditions.id'))
     timestamp = db.Column(db.DateTime)
     probability = db.Column(db.Float)
-    logged_condition = db.relationship('Condition', backref=db.backref('conditions'))
+    logged_condition = db.relationship(
+        'Condition', backref=db.backref('conditions'))
 
 
 class User(UserMixin, db.Model):
@@ -47,7 +53,8 @@ class User(UserMixin, db.Model):
                             secondary=riskuser,
                             backref=db.backref('users', lazy='dynamic'),
                             lazy='dynamic')
-    mylog = db.relationship('UserConditionHistory', backref=db.backref('users'), order_by='desc(UserConditionHistory.timestamp)')
+    mylog = db.relationship('UserConditionHistory', backref=db.backref(
+        'users'), order_by='desc(UserConditionHistory.timestamp)')
     password_hash = db.Column(db.String(128))
 
     family_id = db.Column(db.Integer, default=0)
@@ -97,7 +104,8 @@ class User(UserMixin, db.Model):
 
     def add_condition(self, condition, probability):
         if not self.has_condition(condition):
-            uc_log = UserConditionHistory(probability=probability, timestamp=datetime.now(), logged_condition=condition)
+            uc_log = UserConditionHistory(
+                probability=probability, timestamp=datetime.now(), logged_condition=condition)
             self.mylog.append(uc_log)
 
     def has_condition(self, condition):
@@ -137,7 +145,8 @@ class Condition(db.Model):
     name = db.Column(db.String(360))
     symptoms = db.relationship('Symptom',
                                secondary=globalhistory,
-                               backref=db.backref('conditions', lazy='dynamic'),
+                               backref=db.backref(
+                                   'conditions', lazy='dynamic'),
                                lazy='dynamic')
 
     def add_symptom(self, symptom):
